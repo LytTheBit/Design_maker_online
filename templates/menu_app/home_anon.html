@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Benvenuto – DesignMaker{% endblock %}
+
+{% block content %}
+<div class="container text-center" style="margin-top: 8rem;">
+  <h1 class="display-4">Benvenuto in DesignMaker</h1>
+  <p class="lead">Per iniziare, effettua il <a href="{% url 'login' %}">login</a> o registrati.</p>
+  <div class="mt-4">
+    <a href="{% url 'login' %}"   class="btn btn-light btn-lg btn-custom me-2">Login</a>
+    <a href="{% url 'register' %}" class="btn btn-light btn-lg btn-custom">Registrati</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Genera e Ritocca Canny - GlassMaker{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 2rem;">
+  <h2 class="mb-4 text-center">Genera e ritocca il Canny del bicchiere</h2>
+
+  <form method="post" enctype="multipart/form-data" class="mb-5">
+    {% csrf_token %}
+    <div class="input-group mb-3" style="max-width: 500px; margin: 0 auto;">
+      <input type="file" name="image" accept="image/*" class="form-control" required>
+      <button class="btn btn-light" type="submit">Genera Canny</button>
+    </div>
+  </form>
+
+  {% if original_url and canny_url %}
+    <div class="row gy-4 align-items-start">
+      <div class="col-md-6 text-center">
+        <h5>Originale</h5>
+        <img src="{{ original_url }}" alt="Originale" class="img-fluid border">
+      </div>
+
+      <div class="col-md-6 text-center">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="fw-bold">Ritocca Canny</span>
+            <div>
+              <button id="tool-pen" class="btn btn-sm btn-light me-1">Penna</button>
+              <button id="tool-eraser" class="btn btn-sm btn-light">Gomma</button>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <canvas id="cannyCanvas" class="w-100"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <form id="saveForm" method="post" class="mt-4">
+      {% csrf_token %}
+      <input type="hidden" name="edited_canny" id="editedCannyInput">
+
+      <div class="mb-3">
+        <label for="promptInput" class="form-label">Prompt</label>
+        <textarea name="prompt" id="promptInput" class="form-control" rows="3" placeholder="Es. A photorealistic transparent glass tumbler on a white table..."></textarea>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <label for="numSteps" class="form-label">Inference Steps</label>
+          <input type="number" id="numSteps" class="form-control" value="80">
+        </div>
+        <div class="col-md-4">
+          <label for="guidanceScale" class="form-label">Guidance Scale</label>
+          <input type="number" id="guidanceScale" class="form-control" step="0.1" value="9.0">
+        </div>
+        <div class="col-md-4">
+          <label for="condScale" class="form-label">Conditioning Scale</label>
+          <input type="number" id="condScale" class="form-control" step="0.1" value="1.2">
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-light w-100">Genera Immagine</button>
+    </form>
+
+    <div id="spinner" class="text-center my-4" style="display: none;">
+      <div class="spinner-border text-secondary" role="status">
+        <span class="visually-hidden">Caricamento...</span>
+      </div>
+    </div>
+
+    <div id="outputContainer" class="text-center my-4" style="display: none;">
+      <h5>Risultato generato:</h5>
+      <img id="resultImage" class="img-fluid border" />
+      <br/>
+      <a id="downloadBtn" class="btn btn-outline-secondary mt-3" download="immagine_generata.png">Scarica Immagine</a>
+    </div>
+  {% endif %}
+</div>
+
+<script>
+(function(){
+  const canvas = document.getElementById('cannyCanvas');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let color = '#ffffff';
+
+  const img = new Image();
+  img.src = "{{ canny_url }}";
+  img.onload = () => {
+    canvas.width = img.width;
+    canvas.height = img.height;
+    ctx.drawImage(img, 0, 0);
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+  };
+
+  document.getElementById('tool-pen').onclick = () => color = '#ffffff';
+  document.getElementById('tool-eraser').onclick = () => color = '#000000';
+
+  canvas.addEventListener('mousedown', e => { drawing = true; ctx.beginPath(); draw(e); });
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseout', () => drawing = false);
+
+  function draw(e) {
+    if (!drawing) return;
+    const scaleX = canvas.width / canvas.clientWidth;
+    const scaleY = canvas.height / canvas.clientHeight;
+    const x = e.offsetX * scaleX;
+    const y = e.offsetY * scaleY;
+    ctx.strokeStyle = color;
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  }
+
+  document.getElementById('saveForm')?.addEventListener('submit', function(e){
+    e.preventDefault();
+    const prompt = document.getElementById("promptInput").value;
+    const numSteps = document.getElementById("numSteps").value;
+    const guidance = document.getElementById("guidanceScale").value;
+    const cond = document.getElementById("condScale").value;
+
+    if (!prompt.trim()) return alert("Inserisci un prompt!");
+
+    document.getElementById("spinner").style.display = "block";
+    document.getElementById("outputContainer").style.display = "none";
+
+    canvas.toBlob(blob => {
+      const fileInput = new File([blob], 'edited_canny.png', { type: 'image/png' });
+      const data = new FormData();
+      data.append('edited_canny', fileInput);
+      data.append('prompt', prompt);
+      data.append('num_inference_steps', numSteps);
+      data.append('guidance_scale', guidance);
+      data.append('controlnet_conditioning_scale', cond);
+      data.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+      fetch("{% url 'generate_image' %}", {
+        method: 'POST',
+        body: data
+      })
+      .then(resp => resp.json())
+      .then(data => {
+        document.getElementById("spinner").style.display = "none";
+        if (data.image) {
+          const img = document.getElementById("resultImage");
+          img.src = data.image;
+          document.getElementById("downloadBtn").href = data.image;
+          document.getElementById("outputContainer").style.display = "block";
+        } else {
+          alert("Errore nella generazione.");
+        }
+      })
+      .catch(() => {
+        document.getElementById("spinner").style.display = "none";
+        alert("Errore nella connessione al server.");
+      });
+    });
+  });
+})();
+</script>
+{% endblock %}

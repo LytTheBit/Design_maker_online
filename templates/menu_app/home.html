@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GlassMaker</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #0066cc, #00aaff);
+      color: white;
+      text-align: center;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      padding: 1rem 2rem;
+      background-color: white;
+      color: black;
+    }
+
+    header img {
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    .content {
+      padding: 6rem 1rem 4rem;
+      min-height: 70vh;
+    }
+
+    .btn-custom {
+      margin: 0.5rem;
+    }
+
+    footer {
+      background-color: #004d99;
+      color: white;
+      padding: 1.5rem 1rem 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .footer-columns {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      text-align: left;
+      margin-top: 1rem;
+    }
+
+    .footer-columns div {
+      flex: 1;
+      min-width: 200px;
+      margin: 1rem;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      font-size: 0.8rem;
+      margin-top: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      padding-top: 0.5rem;
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <img src="{% static 'menu_app/logo.png' %}" alt="GlassMaker logo">
+    <h4 class="mb-0">Design Maker Online</h4>
+  </header>
+
+  <!-- Main content -->
+  <div class="content">
+    <h1 class="display-4 fw-bold">Design Maker</h1>
+    <p class="lead">Un generatore di design con Intelligenza Artificiale</p>
+    <div class="d-flex justify-content-center flex-wrap">
+      <a href="/generator/generate/" class="btn btn-light btn-lg btn-custom">Genera Design</a>
+      <a href="/addestra" class="btn btn-light btn-lg btn-custom">Addestra un modello</a>
+      <a href="/account/login/" class="btn btn-light btn-lg btn-custom">Login</a>
+      <a href="/account/register/" class="btn btn-light btn-lg btn-custom">Registrati</a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-columns container">
+      <div>
+        <h5 class="fw-bold">DESIGNMAKER</h5>
+        <p>
+          Questo sito è stato sviluppato nel 2025 come parte di un progetto di tesi triennale
+          sull'intelligenza artificiale applicata al design di oggetti in vetro.
+        </p>
+      </div>
+      <div>
+        <h5 class="fw-bold">LINK UTILI</h5>
+        <ul class="list-unstyled">
+          <li><a href="/menu/home/" class="text-white text-decoration-underline">Pagina iniziale</a></li>
+          <li><a href="/generator/generate/" class="text-white text-decoration-underline">Genera Design</a></li>
+          <li><a href="/addestra" class="text-white text-decoration-underline">Addestra modello</a></li>
+          </li><a href="/account/register/" class="text-white text-decoration-underline">Registrati</a></li>
+          <li><a href="/account/login/" class="text-white text-decoration-underline">Login</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5 class="fw-bold">CONTATTI</h5>
+        <p>
+          Realizzato da: <strong>Francesco Bonaiuti</strong><br />
+          Università degli Studi di Firenze
+        </p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2025 DesignMaker — Progetto di tesi
+    </div>
+  </footer>
+
+</body>
+</html>

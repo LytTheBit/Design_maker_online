@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard – DesignMaker{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 6rem;">
+  <h2 class="mb-4">Cosa vuoi fare oggi?</h2>
+  <div class="d-flex justify-content-center flex-wrap">
+    <a href="{% url 'generate' %}" class="btn btn-light btn-lg btn-custom me-2">Genera bicchieri</a>
+    <a href="{% url 'train_lora' %}" class="btn btn-light btn-lg btn-custom">Addestra un LoRA</a>
+  </div>
+</div>
+{% endblock %}

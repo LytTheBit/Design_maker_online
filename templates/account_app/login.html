@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Login - GlassMaker{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 5rem; max-width: 500px; text-align: left;">
+  <h2 class="mb-4 text-center">Accedi al tuo account</h2>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="mb-3 position-relative">
+        {{ field.label_tag }}
+
+        {% if 'password' in field.name %}
+          <div class="input-group">
+            {{ field|add_class:"form-control" }}
+            <button type="button" class="btn btn-outline-secondary toggle-password" data-target="{{ field.auto_id }}">
+              👁️
+            </button>
+          </div>
+        {% else %}
+          {{ field|add_class:"form-control" }}
+        {% endif %}
+
+        {% if field.errors %}
+          <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-light w-100 mt-3">Accedi</button>
+  </form>
+</div>
+
+<script>
+  document.querySelectorAll(".toggle-password").forEach(button => {
+    button.addEventListener("click", () => {
+      const targetId = button.dataset.target;
+      const input = document.getElementById(targetId);
+      if (input.type === "password") {
+        input.type = "text";
+        button.textContent = "🙈";
+      } else {
+        input.type = "password";
+        button.textContent = "👁️";
+      }
+    });
+  });
+</script>
+{% endblock %}
