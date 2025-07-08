@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Gestione Account</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Ruolo</th>
+        <th>Promuovi</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for utente in utenti %}
+        <tr>
+          <td>{{ utente.username }}</td>
+          <td>{{ utente.email }}</td>
+          <td>
+            {% if utente.is_superuser %}
+              Admin
+            {% elif addestratore_group in utente.groups.all %}
+              Addestratore
+            {% else %}
+              Generatore
+            {% endif %}
+          </td>
+          <td>
+            {% if not utente.is_superuser and addestratore_group not in utente.groups.all %}
+              <form method="post" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="user_id" value="{{ utente.id }}">
+                <button class="btn btn-sm btn-success">Promuovi ad Addestratore</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,10 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block title %}Addestra un LoRA{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 5rem;">
+  {% if access_granted %}
+    <h2 class="text-center mb-4">Questa funzione è ancora in fase di implementazione</h2>
+  {% else %}
+    <h2 class="text-center text-danger">Ti serve un ruolo superiore per accedere a questa pagina</h2>
+  {% endif %}
+</div>
+{% endblock %}

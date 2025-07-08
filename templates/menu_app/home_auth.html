@@ -7,6 +7,9 @@
   <div class="d-flex justify-content-center flex-wrap">
     <a href="{% url 'generate' %}" class="btn btn-light btn-lg btn-custom me-2">Genera bicchieri</a>
     <a href="{% url 'train_lora' %}" class="btn btn-light btn-lg btn-custom">Addestra un LoRA</a>
+    {% if request.user.is_superuser %}
+      <a href="{% url 'account_management' %}" class="btn btn-light btn-lg btn-custom">Gestione Account</a>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

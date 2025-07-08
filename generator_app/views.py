@@ -2,13 +2,13 @@ import os
 import uuid
 import cv2
 
-from django.shortcuts import render
 from django.core.files.storage import default_storage
 from django.conf import settings
 import requests
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 import base64
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
 
 
 
@@ -69,13 +69,17 @@ def generate(request):
         'canny_url':    canny_url,
     })
 
+# Funzione per verificare se l'utente è autenticato
+@login_required
 def train_lora(request):
-    """
-    Placeholder per la view di training LoRA.
-    Qui andrà implementata la logica per avviare il training.
-    """
-    # Per ora, semplicemente renderizza un template vuoto
-    return render(request, 'generator_app/train_lora.html', {})
+    if request.user.groups.filter(name__in=['Addestratore']).exists() or request.user.is_superuser:
+        return render(request, 'generator_app/train_lora.html', {
+            'access_granted': True
+        })
+    else:
+        return render(request, 'generator_app/train_lora.html', {
+            'access_granted': False
+        })
 
 # Codice per la generazione di immagini tramite un server IA esterno
 LAMBDA_SERVER_URL = "http://158.101.120.59:7860/generate"
@@ -87,7 +91,6 @@ def generate_image(request):
     prompt = request.POST.get("prompt")
     canny_file = request.FILES.get("edited_canny")
 
-    # Parametri opzionali (usiamo valori di default se non forniti)
     try:
         num_steps = int(request.POST.get("num_inference_steps", 80))
         guidance = float(request.POST.get("guidance_scale", 9.0))
@@ -98,22 +101,35 @@ def generate_image(request):
     if not prompt or not canny_file:
         return JsonResponse({"error": "Dati mancanti"}, status=400)
 
-    # Codifica il file in base64
-    img_base64 = base64.b64encode(canny_file.read()).decode()
-    img_data_url = f"data:image/png;base64,{img_base64}"
-
-    # Prepara i dati per la richiesta al server IA
-    payload = {
-        "canny": img_data_url,
-        "prompt": prompt,
-        "num_inference_steps": num_steps,
-        "guidance_scale": guidance,
-        "controlnet_conditioning_scale": conditioning
-    }
-
     try:
+        # DEBUG
+        print("Prompt ricevuto:", prompt)
+        print("Steps:", num_steps, "Guidance:", guidance, "Conditioning:", conditioning)
+
+        # Codifica in base64
+        img_base64 = base64.b64encode(canny_file.read()).decode()
+        img_data_url = f"data:image/png;base64,{img_base64}"
+        print("Base64 pronta (lunghezza):", len(img_data_url))
+
+        # Prepara i dati per il server IA
+        payload = {
+            "canny": img_data_url,
+            "prompt": prompt,
+            "num_inference_steps": num_steps,
+            "guidance_scale": guidance,
+            "controlnet_conditioning_scale": conditioning
+        }
+
+        print("Invio richiesta al server IA...")
         response = requests.post(LAMBDA_SERVER_URL, json=payload, timeout=60)
-        response.raise_for_status()
+        print("Risposta server:", response.status_code)
+
+        if response.status_code != 200:
+            print("Contenuto errore:", response.text)
+            return JsonResponse({"error": "Errore dal server IA"}, status=500)
+
         return JsonResponse(response.json())
-    except requests.exceptions.RequestException as e:
-        return JsonResponse({"error": f"Errore dal server IA: {str(e)}"}, status=500)
+
+    except Exception as e:
+        print("Eccezione generata:", str(e))
+        return JsonResponse({"error": f"Errore interno: {str(e)}"}, status=500)

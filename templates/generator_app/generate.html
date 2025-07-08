@@ -81,6 +81,11 @@
 </div>
 
 <script>
+  function getCSRFToken() {
+    const cookieValue = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)')?.pop();
+    return cookieValue || '';
+  }
+
 (function(){
   const canvas = document.getElementById('cannyCanvas');
   const ctx = canvas.getContext('2d');
@@ -142,8 +147,12 @@
 
       fetch("{% url 'generate_image' %}", {
         method: 'POST',
+        headers: {
+          'X-CSRFToken': getCSRFToken()
+        },
         body: data
       })
+
       .then(resp => resp.json())
       .then(data => {
         document.getElementById("spinner").style.display = "none";

@@ -9,6 +9,8 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='account_app/login.html'), name='login'),
     path('logout/', LogoutView.as_view(next_page='/menu/home/'), name='logout'),
 
+    # Pagina di gestione degli account
+    path("gestione-account/", views.account_management, name="account_management"),
 
     # Registrazione degli utenti
     path('register/', views.register, name='register'),

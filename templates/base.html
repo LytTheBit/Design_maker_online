@@ -75,15 +75,14 @@
 <body>
 
   <!-- Header -->
-  <header>
-    <div class="logo">
-      <img src="{% static 'menu_app/logo.png' %}" alt="DesignMaker logo">
-      <h4 class="mb-0">Design Maker Online</h4>
-    </div>
+  <header class="d-flex align-items-center justify-content-between px-4 py-2" style="background-color: white;">
+    <a href="{% url 'home' %}" class="d-flex align-items-center text-decoration-none">
+      <img src="{% static 'menu_app/logo.png' %}" alt="DesignMaker logo" height="40" class="me-2">
+      <h4 class="mb-0 text-dark">Design Maker Online</h4>
+    </a>
     <div class="user-area">
       {% if user.is_authenticated %}
         <span class="me-3">Ciao, {{ user.username }}!</span>
-        <!-- <a href="{% url 'logout' %}" class="btn btn-sm btn-light">Logout</a> -->
         <form action="{% url 'logout' %}" method="post" class="d-inline">
           {% csrf_token %}
           <button type="submit" class="btn btn-sm btn-light">Logout</button>
