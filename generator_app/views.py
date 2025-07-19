@@ -82,7 +82,7 @@ def train_lora(request):
         })
 
 # Codice per la generazione di immagini tramite un server IA esterno
-LAMBDA_SERVER_URL = "http://158.101.120.59:7860/generate"
+LAMBDA_SERVER_URL = "http://144.24.121.57:7860/generate"
 
 def generate_image(request):
     if request.method != "POST":
