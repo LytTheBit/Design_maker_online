@@ -18,13 +18,23 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
-from django.contrib.auth import views as auth_views
+from django.conf.urls.i18n import i18n_patterns
 
 urlpatterns = [
+    path('i18n/', include('django.conf.urls.i18n')),
+]
+
+urlpatterns += i18n_patterns(
     path('admin/', admin.site.urls),
 
-    # le tue app
-    path('menu/', include('menu_app.urls')),
-    path('account/', include('account_app.urls')),
-    path('generator/', include('generator_app.urls')),
-]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path('menu/',     include('menu_app.urls')),
+    path('account/',  include('account_app.urls')),
+    path('generator/',include('generator_app.urls')),
+
+    # ← qui sostituisci 'tuo_app' con la tua app di home, ad esempio 'menu_app'
+    path('', include('menu_app.urls')),
+
+    prefix_default_language=False,
+)
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

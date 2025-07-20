@@ -4,7 +4,7 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     # generate view
-    path("generate/", views.generate, name="generate"),
+    path("generate/", views.generate, name="generator-home"),
 
     # urls.py
     path("generate-image/", views.generate_image, name="generate_image"),

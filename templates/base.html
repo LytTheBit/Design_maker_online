@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-{% load static %}
-<html lang="it">
+{% load static i18n %}
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,42 +13,42 @@
       color: white;
       text-align: center;
     }
-
     header {
       display: flex;
-      justify-content: space-between;          /* nuovo: spazio tra logo e user area */
+      justify-content: space-between;
       align-items: center;
       padding: 1rem 2rem;
       background-color: white;
       color: black;
     }
-
     header .logo {
       display: flex;
       align-items: center;
     }
-
     header img {
       height: 40px;
       margin-right: 10px;
     }
-
+    .user-area {
+      display: flex;
+      align-items: center;
+    }
+    .lang-switch {
+      margin-left: 1rem;
+    }
     .content {
       padding: 6rem 1rem 4rem;
       min-height: 70vh;
     }
-
     .btn-custom {
       margin: 0.5rem;
     }
-
     footer {
       background-color: #004d99;
       color: white;
       padding: 1.5rem 1rem 0.5rem;
       font-size: 0.95rem;
     }
-
     .footer-columns {
       display: flex;
       flex-wrap: wrap;
@@ -56,13 +56,11 @@
       text-align: left;
       margin-top: 1rem;
     }
-
     .footer-columns div {
       flex: 1;
       min-width: 200px;
       margin: 1rem;
     }
-
     .footer-bottom {
       text-align: center;
       font-size: 0.8rem;
@@ -75,11 +73,14 @@
 <body>
 
   <!-- Header -->
-  <header class="d-flex align-items-center justify-content-between px-4 py-2" style="background-color: white;">
-    <a href="{% url 'home' %}" class="d-flex align-items-center text-decoration-none">
-      <img src="{% static 'menu_app/logo.png' %}" alt="DesignMaker logo" height="40" class="me-2">
-      <h4 class="mb-0 text-dark">Design Maker Online</h4>
-    </a>
+  <header>
+    <div class="logo">
+      <a href="{% url 'home' %}" class="d-flex align-items-center text-decoration-none">
+        <img src="{% static 'menu_app/logo.png' %}" alt="DesignMaker logo">
+        <h4 class="mb-0 text-dark">Design Maker Online</h4>
+      </a>
+    </div>
+
     <div class="user-area">
       {% if user.is_authenticated %}
         <span class="me-3">Ciao, {{ user.username }}!</span>
@@ -91,46 +92,55 @@
         <a href="{% url 'login' %}" class="btn btn-sm btn-light me-2">Login</a>
         <a href="{% url 'register' %}" class="btn btn-sm btn-light">Registrati</a>
       {% endif %}
+
+      <!-- Language switcher -->
+      <form action="{% url 'set_language' %}" method="post" class="lang-switch">
+        {% csrf_token %}
+        <input name="next" type="hidden" value="{{ request.get_full_path }}">
+        <button type="submit" name="language" value="{% if LANGUAGE_CODE == 'it' %}en{% else %}it{% endif %}"
+                class="btn btn-sm btn-outline-primary">
+          {% if LANGUAGE_CODE == 'it' %}
+            🇬🇧 English
+          {% else %}
+            🇮🇹 Italiano
+          {% endif %}
+        </button>
+      </form>
     </div>
   </header>
 
   <!-- Main content -->
   <div class="content">
-    {% block content %}
-    <!-- Il contenuto delle pagine figlie sarà inserito qui -->
-    {% endblock %}
+    {% block content %}{% endblock %}
   </div>
 
   <!-- Footer -->
   <footer>
     <div class="footer-columns container">
       <div>
-        <h5 class="fw-bold">DESIGNMAKER</h5>
-        <p>
-          Questo sito è stato sviluppato nel 2025 come parte di un progetto di tesi triennale
-          sull'intelligenza artificiale applicata al design, in particolare di oggetti in vetro.
-        </p>
+        <h5 class="fw-bold">{% trans "DESIGNMAKER" %}</h5>
+        <p>{% trans "Questo sito è stato sviluppato..." %}</p>
       </div>
       <div>
-        <h5 class="fw-bold">LINK UTILI</h5>
+        <h5 class="fw-bold">{% trans "LINK UTILI" %}</h5>
         <ul class="list-unstyled">
-          <li><a href="/menu/home/" class="text-white text-decoration-underline">Pagina iniziale</a></li>
-          <li><a href="/generator/generate/" class="text-white text-decoration-underline">Genera Design</a></li>
-          <li><a href="/addestra" class="text-white text-decoration-underline">Addestra modello</a></li>
-          <li><a href="/account/register/" class="text-white text-decoration-underline">Registrati</a></li>
-          <li><a href="/account/login/" class="text-white text-decoration-underline">Login</a></li>
+          <li><a href="{% url 'home' %}" class="text-white text-decoration-underline">{% trans "Pagina iniziale" %}</a></li>
+          <li><a href="{% url 'generator-home' %}" class="text-white text-decoration-underline">{% trans "Genera Design" %}</a></li>
+          <li><a href="{% url 'train_lora' %}" class="text-white text-decoration-underline">{% trans "Addestra modello" %}</a></li>
+          <li><a href="{% url 'register' %}" class="text-white text-decoration-underline">{% trans "Registrati" %}</a></li>
+          <li><a href="{% url 'login' %}" class="text-white text-decoration-underline">{% trans "Login" %}</a></li>
         </ul>
       </div>
       <div>
-        <h5 class="fw-bold">CONTATTI</h5>
+        <h5 class="fw-bold">{% trans "CONTATTI" %}</h5>
         <p>
-          Realizzato da: <strong>Francesco Bonaiuti</strong><br />
-          Università degli Studi di Firenze
+          {% trans "Realizzato da" %}: <strong>Francesco Bonaiuti</strong><br/>
+          {% trans "Università degli Studi di Firenze" %}
         </p>
       </div>
     </div>
     <div class="footer-bottom">
-      © 2025 DesignMaker — Progetto di tesi
+      © 2025 DesignMaker — {% trans "Progetto di tesi" %}
     </div>
   </footer>
 

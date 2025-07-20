@@ -1,14 +1,18 @@
 {% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Gestione Account" %}{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
-  <h2>Gestione Account</h2>
+  <h2>{% trans "Gestione Account" %}</h2>
   <table class="table">
     <thead>
       <tr>
-        <th>Username</th>
-        <th>Email</th>
-        <th>Ruolo</th>
-        <th>Promuovi</th>
+        <th>{% trans "Username" %}</th>
+        <th>{% trans "Email" %}</th>
+        <th>{% trans "Ruolo" %}</th>
+        <th>{% trans "Promuovi" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -18,11 +22,11 @@
           <td>{{ utente.email }}</td>
           <td>
             {% if utente.is_superuser %}
-              Admin
+              {% trans "Admin" %}
             {% elif addestratore_group in utente.groups.all %}
-              Addestratore
+              {% trans "Addestratore" %}
             {% else %}
-              Generatore
+              {% trans "Generatore" %}
             {% endif %}
           </td>
           <td>
@@ -30,7 +34,9 @@
               <form method="post" style="display:inline;">
                 {% csrf_token %}
                 <input type="hidden" name="user_id" value="{{ utente.id }}">
-                <button class="btn btn-sm btn-success">Promuovi ad Addestratore</button>
+                <button class="btn btn-sm btn-success">
+                  {% trans "Promuovi ad Addestratore" %}
+                </button>
               </form>
             {% endif %}
           </td>

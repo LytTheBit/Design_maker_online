@@ -1,12 +1,11 @@
 {% extends 'base.html' %}
-{% load static %}
-{% load widget_tweaks %}
+{% load static i18n widget_tweaks %}
 
-{% block title %}Registrati - GlassMaker{% endblock %}
+{% block title %}{% trans "Registrati - GlassMaker" %}{% endblock %}
 
 {% block content %}
 <div class="container" style="margin-top: 5rem; max-width: 500px; text-align: left;">
-  <h2 class="mb-4 text-center">Crea un nuovo account</h2>
+  <h2 class="mb-4 text-center">{% trans "Crea un nuovo account" %}</h2>
   <form method="post" novalidate>
     {% csrf_token %}
     {% for field in form %}
@@ -29,7 +28,7 @@
         {% endif %}
       </div>
     {% endfor %}
-    <button type="submit" class="btn btn-light w-100 mt-3">Registrati</button>
+    <button type="submit" class="btn btn-light w-100 mt-3">{% trans "Registrati" %}</button>
   </form>
 </div>
 
@@ -49,4 +48,3 @@
   });
 </script>
 {% endblock %}
-
