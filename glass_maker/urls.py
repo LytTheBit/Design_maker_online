@@ -31,10 +31,9 @@ urlpatterns += i18n_patterns(
     path('account/',  include('account_app.urls')),
     path('generator/',include('generator_app.urls')),
 
-    # ← qui sostituisci 'tuo_app' con la tua app di home, ad esempio 'menu_app'
     path('', include('menu_app.urls')),
 
-    prefix_default_language=False,
+    prefix_default_language=True,
 )
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -94,12 +94,22 @@
       {% endif %}
 
       <!-- Language switcher -->
+      {% get_current_language as CUR_LANG %}
       <form action="{% url 'set_language' %}" method="post" class="lang-switch">
         {% csrf_token %}
-        <input name="next" type="hidden" value="{{ request.get_full_path }}">
-        <button type="submit" name="language" value="{% if LANGUAGE_CODE == 'it' %}en{% else %}it{% endif %}"
+        {# Se siamo in inglese il path inizia con "/en/" → rimuoviamolo #}
+        {% if CUR_LANG == 'en' %}
+          {% with "/"|add:request.get_full_path|cut:"/en/" as cleaned %}
+            <input name="next" type="hidden" value="{{ cleaned }}">
+          {% endwith %}
+        {% else %}
+          <input name="next" type="hidden" value="{{ request.get_full_path }}">
+        {% endif %}
+
+        <button type="submit" name="language"
+                value="{% if CUR_LANG == 'it' %}en{% else %}it{% endif %}"
                 class="btn btn-sm btn-outline-primary">
-          {% if LANGUAGE_CODE == 'it' %}
+          {% if CUR_LANG == 'it' %}
             🇬🇧 English
           {% else %}
             🇮🇹 Italiano
@@ -125,7 +135,7 @@
         <h5 class="fw-bold">{% trans "LINK UTILI" %}</h5>
         <ul class="list-unstyled">
           <li><a href="{% url 'home' %}" class="text-white text-decoration-underline">{% trans "Pagina iniziale" %}</a></li>
-          <li><a href="{% url 'generator-home' %}" class="text-white text-decoration-underline">{% trans "Genera Design" %}</a></li>
+          <li><a href="{% url 'generator' %}" class="text-white text-decoration-underline">{% trans "Genera Design" %}</a></li>
           <li><a href="{% url 'train_lora' %}" class="text-white text-decoration-underline">{% trans "Addestra modello" %}</a></li>
           <li><a href="{% url 'register' %}" class="text-white text-decoration-underline">{% trans "Registrati" %}</a></li>
           <li><a href="{% url 'login' %}" class="text-white text-decoration-underline">{% trans "Login" %}</a></li>
