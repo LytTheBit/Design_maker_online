@@ -97,7 +97,7 @@
       {% get_current_language as CUR_LANG %}
       <form action="{% url 'set_language' %}" method="post" class="lang-switch">
         {% csrf_token %}
-        {# Se siamo in inglese il path inizia con "/en/" → rimuoviamolo #}
+        {# Se sono in inglese il path inizia con "/en/" #}
         {% if CUR_LANG == 'en' %}
           {% with "/"|add:request.get_full_path|cut:"/en/" as cleaned %}
             <input name="next" type="hidden" value="{{ cleaned }}">
@@ -129,7 +129,7 @@
     <div class="footer-columns container">
       <div>
         <h5 class="fw-bold">{% trans "DESIGNMAKER" %}</h5>
-        <p>{% trans "Questo sito è stato sviluppato..." %}</p>
+        <p>{% trans "Questo sito è stato sviluppato da Francesco Bonaiuti nel corso del 2025 per la tesi triennale della facoltà di Ingegneria Informatica del Università degli Studi di Firenze" %}</p>
       </div>
       <div>
         <h5 class="fw-bold">{% trans "LINK UTILI" %}</h5>

@@ -7,6 +7,7 @@
 <div class="container" style="margin-top: 2rem;">
   <h2 class="mb-4 text-center">{% trans "Genera e ritocca il Canny del bicchiere" %}</h2>
 
+  {# --- form per upload + Canny originale --- #}
   <form method="post" enctype="multipart/form-data" class="mb-5">
     {% csrf_token %}
     <div class="input-group mb-3" style="max-width: 500px; margin: 0 auto;">
@@ -27,21 +28,12 @@
           <div class="card-header d-flex justify-content-between align-items-center">
             <span class="fw-bold">{% trans "Ritocca Canny" %}</span>
             <div class="d-flex align-items-center">
-              <!-- strumenti penna / gomma -->
               <button id="tool-pen"    class="btn btn-sm btn-light me-1">{% trans "Penna" %}</button>
               <button id="tool-eraser" class="btn btn-sm btn-light me-1">{% trans "Gomma" %}</button>
-              <!-- pulsanti dimensione pennello -->
-              <button id="brush-small"
-                      class="btn btn-sm btn-outline-secondary me-1"
-                      aria-label="{% trans "Piccolo" %}">·</button>
-              <button id="brush-medium"
-                      class="btn btn-sm btn-outline-secondary me-1"
-                      aria-label="{% trans "Medio" %}">•</button>
-              <button id="brush-large"
-                      class="btn btn-sm btn-outline-secondary me-3"
-                      aria-label="{% trans "Grande" %}">●</button>
-              <!-- pulsante undo -->
-              <button id="undo" class="btn btn-sm btn-light" aria-label="{% trans "Torna indietro" %}">←</button>
+              <button id="brush-small"  class="btn btn-sm btn-outline-secondary me-1" aria-label="{% trans "Piccolo" %}">·</button>
+              <button id="brush-medium" class="btn btn-sm btn-outline-secondary me-1" aria-label="{% trans "Medio" %}">•</button>
+              <button id="brush-large"  class="btn btn-sm btn-outline-secondary me-3" aria-label="{% trans "Grande" %}">●</button>
+              <button id="undo"         class="btn btn-sm btn-light" aria-label="{% trans "Torna indietro" %}">←</button>
             </div>
           </div>
           <div class="card-body p-0">
@@ -51,170 +43,179 @@
       </div>
     </div>
 
+    {# --- form per invocare la generazione FastAPI --- #}
     <form id="saveForm" method="post" class="mt-4">
       {% csrf_token %}
-      <input type="hidden" name="edited_canny" id="editedCannyInput">
 
       <div class="mb-3">
         <label for="promptInput" class="form-label">{% trans "Prompt" %}</label>
         <textarea name="prompt" id="promptInput" class="form-control" rows="3"
-                  placeholder="{% trans "Es. A photorealistic transparent glass tumbler on a white table..." %}"></textarea>
+          placeholder="{% trans "Es. A photorealistic transparent glass tumbler on a white table..." %}"></textarea>
       </div>
 
       <div class="row mb-3">
-        <div class="col-md-4">
+        <div class="col-md-6">
           <label for="numSteps" class="form-label">{% trans "Inference Steps" %}</label>
-          <input type="number" id="numSteps" class="form-control" value="80">
+          <input type="number" id="numSteps" name="num_inference_steps" class="form-control" value="80">
         </div>
-        <div class="col-md-4">
-          <label for="guidanceScale" class="form-label">{% trans "Guidance Scale" %}</label>
-          <input type="number" id="guidanceScale" class="form-control" step="0.1" value="9.0">
-        </div>
-        <div class="col-md-4">
-          <label for="condScale" class="form-label">{% trans "Conditioning Scale" %}</label>
-          <input type="number" id="condScale" class="form-control" step="0.1" value="1.2">
+        <div class="col-md-6 d-flex align-items-end">
+          <button type="button" id="toggle-advanced" class="btn btn-outline-light btn-sm ms-auto">
+            {% trans "Impostazioni avanzate" %}
+          </button>
         </div>
       </div>
+
+    <!-- nella sezione advanced-options -->
+    <div id="advanced-options" style="display: none;">
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label for="guidanceScale" class="form-label">{% trans "Guidance Scale" %}</label>
+          <input type="number" id="guidanceScale" name="guidance_scale" class="form-control" step="0.1" value="9.0">
+        </div>
+        <div class="col-md-6">
+          <label for="condScale" class="form-label">{% trans "Conditioning Scale" %}</label>
+          <input type="number" id="condScale" name="controlnet_conditioning_scale" class="form-control" step="0.1" value="1.2">
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="negativePrompt" class="form-label">{% trans "Negative Prompt" %}</label>
+        <textarea name="negative_prompt" id="negativePrompt" class="form-control" rows="2">cartoon, sketch, distorted, colored background, reflections, ornate, decorative glass, textured sides, blurry, surreal</textarea>
+      </div>
+    </div>
+
 
       <button type="submit" class="btn btn-light w-100">{% trans "Genera Immagine" %}</button>
     </form>
 
-    <div id="spinner" class="text-center my-4" style="display: none;">
-      <div class="spinner-border text-secondary" role="status">
-        <span class="visually-hidden">{% trans "Caricamento..." %}</span>
-      </div>
+    {# --- Spinner + area risultato --- #}
+    <div id="spinner" class="text-center my-4" style="display:none;">
+      <div class="spinner-border text-light" role="status"><span class="visually-hidden">Loading…</span></div>
     </div>
-
-    <div id="outputContainer" class="text-center my-4" style="display: none;">
-      <h5>{% trans "Risultato generato:" %}</h5>
+    <div id="outputContainer" class="text-center" style="display:none;">
+      <h5>{% trans "Risultato" %}</h5>
       <img id="resultImage" class="img-fluid border" />
-      <br/>
-      <a id="downloadBtn" class="btn btn-outline-secondary mt-3" download="immagine_generata.png">
-        {% trans "Scarica Immagine" %}
-      </a>
+      <div class="mt-2">
+        <a id="downloadBtn" class="btn btn-light" download="generated.png">{% trans "Scarica Immagine" %}</a>
+      </div>
     </div>
   {% endif %}
 </div>
 
 <script>
-  const alertMissingPrompt = "{% trans "Inserisci un prompt!" %}";
-  const alertGenError      = "{% trans "Errore nella generazione." %}";
-  const alertConnError     = "{% trans "Errore nella connessione al server." %}";
-
+  // helper CSRF per Django
   function getCSRFToken() {
-    const cookieValue = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)')?.pop();
-    return cookieValue || '';
+    return document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)')?.pop() || '';
   }
 
-  (function(){
-    const canvas = document.getElementById('cannyCanvas');
-    const ctx = canvas.getContext('2d');
-    let drawing = false;
-    let color = '#ffffff';
-    const history = [];
+  // Toggle della sezione avanzata
+  document.getElementById('toggle-advanced')?.addEventListener('click', () => {
+    const adv = document.getElementById('advanced-options');
+    adv.style.display = adv.style.display === 'none' ? 'block' : 'none';
+  });
 
+  (function(){
+    const canvas  = document.getElementById('cannyCanvas');
+    const ctx     = canvas.getContext('2d');
+    const history = [];
+    let drawing=false, color='#ffffff';
+
+    // carica il Canny
     const img = new Image();
     img.src = "{{ canny_url }}";
     img.onload = () => {
-      canvas.width = img.width;
+      canvas.width  = img.width;
       canvas.height = img.height;
-      ctx.drawImage(img, 0, 0);
-      ctx.lineWidth = 2;
-      ctx.lineCap = 'round';
-
-      // stato iniziale
+      ctx.drawImage(img,0,0);
+      ctx.lineCap     = 'round';
+      ctx.lineWidth   = 2;
       history.push(canvas.toDataURL());
-
-      // brush size
-      document.getElementById('brush-small').onclick  = () => { ctx.lineWidth = 2;  };
-      document.getElementById('brush-medium').onclick = () => { ctx.lineWidth = 5;  };
-      document.getElementById('brush-large').onclick  = () => { ctx.lineWidth = 10; };
-
-      // penna/gomma
-      document.getElementById('tool-pen').onclick    = () => color = '#ffffff';
-      document.getElementById('tool-eraser').onclick = () => color = '#000000';
-
-      // undo
-      document.getElementById('undo').onclick = () => {
-        if (history.length > 1) {
-          history.pop();
-          const dataUrl = history[history.length - 1];
-          const imgUndo = new Image();
-          imgUndo.onload = () => ctx.drawImage(imgUndo, 0, 0);
-          imgUndo.src = dataUrl;
-        }
-      };
     };
 
-    canvas.addEventListener('mousedown', e => {
-      drawing = true;
-      ctx.beginPath();
-      draw(e);
+    // brush size / tool
+    document.getElementById('brush-small').onclick  = ()=> ctx.lineWidth=2;
+    document.getElementById('brush-medium').onclick = ()=> ctx.lineWidth=5;
+    document.getElementById('brush-large').onclick  = ()=> ctx.lineWidth=10;
+    document.getElementById('tool-pen').onclick      = ()=> color='#ffffff';
+    document.getElementById('tool-eraser').onclick   = ()=> color='#000000';
+
+    document.getElementById('undo').onclick = ()=>{
+      if(history.length>1){
+        history.pop();
+        const imgU=new Image();
+        imgU.onload = ()=> ctx.drawImage(imgU,0,0);
+        imgU.src     = history[history.length-1];
+      }
+    };
+
+    // drawing events
+    canvas.addEventListener('mousedown', e=>{
+      drawing=true; ctx.beginPath(); draw(e);
     });
     canvas.addEventListener('mousemove', draw);
-    canvas.addEventListener('mouseup', () => {
-      drawing = false;
-      history.push(canvas.toDataURL());
+    canvas.addEventListener('mouseup', ()=>{
+      drawing=false; history.push(canvas.toDataURL());
     });
-    canvas.addEventListener('mouseout', () => drawing = false);
+    canvas.addEventListener('mouseout', ()=> drawing=false);
 
-    function draw(e) {
-      if (!drawing) return;
-      const scaleX = canvas.width / canvas.clientWidth;
-      const scaleY = canvas.height / canvas.clientHeight;
-      const x = e.offsetX * scaleX;
-      const y = e.offsetY * scaleY;
+    function draw(e){
+      if(!drawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.clientX-rect.left)*(canvas.width/rect.width);
+      const y = (e.clientY-rect.top)*(canvas.height/rect.height);
       ctx.strokeStyle = color;
-      ctx.lineTo(x, y);
+      ctx.lineTo(x,y);
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(x, y);
+      ctx.moveTo(x,y);
     }
 
-    document.getElementById('saveForm')?.addEventListener('submit', function(e){
+    // submit & fetch
+    document.getElementById('saveForm')?.addEventListener('submit', async e=>{
       e.preventDefault();
-      const prompt = document.getElementById("promptInput").value;
-      if (!prompt.trim()) return alert(alertMissingPrompt);
 
-      const numSteps  = document.getElementById("numSteps").value;
-      const guidance  = document.getElementById("guidanceScale").value;
-      const cond      = document.getElementById("condScale").value;
+      const prompt = document.getElementById("promptInput").value.trim();
+      if(!prompt){
+        alert("{% trans 'Inserisci un prompt!' %}");
+        return;
+      }
 
-      document.getElementById("spinner").style.display = "block";
+      // mostra spinner
+      document.getElementById("spinner").style.display       = "block";
       document.getElementById("outputContainer").style.display = "none";
 
-      canvas.toBlob(blob => {
-        const fileInput = new File([blob], 'edited_canny.png', { type: 'image/png' });
-        const data = new FormData();
-        data.append('edited_canny', fileInput);
-        data.append('prompt', prompt);
-        data.append('num_inference_steps', numSteps);
-        data.append('guidance_scale', guidance);
-        data.append('controlnet_conditioning_scale', cond);
-        data.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+      canvas.toBlob(async blob=>{
+        const fd = new FormData();
+        fd.append('edited_canny', new File([blob],'edited.png',{type:'image/png'}));
+        fd.append('prompt', prompt);
+        fd.append('num_inference_steps', document.getElementById("numSteps").value);
+        fd.append('guidance_scale', document.getElementById("guidanceScale").value);
+        fd.append('controlnet_conditioning_scale', document.getElementById("condScale").value);
+        fd.append('negative_prompt', document.getElementById("negativePrompt").value);
 
-        fetch("{% url 'generate_image' %}", {
-          method: 'POST',
-          headers: { 'X-CSRFToken': getCSRFToken() },
-          body: data
-        })
-        .then(resp => resp.json())
-        .then(data => {
-          document.getElementById("spinner").style.display = "none";
-          if (data.image) {
-            document.getElementById("resultImage").src = data.image;
-            document.getElementById("downloadBtn").href = data.image;
-            document.getElementById("outputContainer").style.display = "block";
+        try {
+          const resp = await fetch("{% url 'generate_image' %}", {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCSRFToken() },
+            body: fd
+          });
+          const data = await resp.json();
+          document.getElementById("spinner").style.display="none";
+
+          if(resp.ok && data.image){
+            document.getElementById("resultImage").src     = data.image;
+            document.getElementById("downloadBtn").href    = data.image;
+            document.getElementById("outputContainer").style.display="block";
           } else {
-            alert(alertGenError);
+            alert("{% trans 'Errore nella generazione.' %}");
           }
-        })
-        .catch(() => {
-          document.getElementById("spinner").style.display = "none";
-          alert(alertConnError);
-        });
-      });
+        } catch(err){
+          console.error(err);
+          document.getElementById("spinner").style.display="none";
+          alert("{% trans 'Errore nella connessione al server.' %}");
+        }
+      }, 'image/png');
     });
+
   })();
 </script>
 {% endblock %}

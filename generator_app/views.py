@@ -82,13 +82,16 @@ def train_lora(request):
         })
 
 # Codice per la generazione di immagini tramite un server IA esterno
-LAMBDA_SERVER_URL = "http://144.24.121.57:7860/generate"
+LAMBDA_SERVER_URL = "http://129.146.65.221:7860/generate"
 
 def generate_image(request):
     if request.method != "POST":
         return JsonResponse({"error": "Richiesta non valida"}, status=400)
 
+    # Recupera i dati dal form
     prompt = request.POST.get("prompt")
+    negative_prompt = request.POST.get("negative_prompt", "").strip()
+
     canny_file = request.FILES.get("edited_canny")
 
     try:
@@ -104,6 +107,7 @@ def generate_image(request):
     try:
         # DEBUG
         print("Prompt ricevuto:", prompt)
+        print("Negative Prompt:", negative_prompt)
         print("Steps:", num_steps, "Guidance:", guidance, "Conditioning:", conditioning)
 
         # Codifica in base64
@@ -113,11 +117,12 @@ def generate_image(request):
 
         # Prepara i dati per il server IA
         payload = {
-            "canny": img_data_url,
-            "prompt": prompt,
-            "num_inference_steps": num_steps,
-            "guidance_scale": guidance,
-            "controlnet_conditioning_scale": conditioning
+            "canny": img_data_url, # Usa l'immagine Canny come input
+            "prompt": prompt, # Aggiungi il prompt
+            "num_inference_steps": num_steps, # Aggiungi il numero di passi di inferenza
+            "guidance_scale": guidance, # Aggiungi il guidance scale
+            "controlnet_conditioning_scale": conditioning, # Aggiungi il conditioning scale
+            "negative_prompt": negative_prompt, # Aggiungi il negative prompt se presente
         }
 
         print("Invio richiesta al server IA...")
