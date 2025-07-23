@@ -1,3 +1,4 @@
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -9,19 +10,27 @@ def is_admin(user):
 # View per la pagina di login
 @login_required
 @user_passes_test(is_admin)
+@staff_member_required
 def account_management(request):
-    utenti = User.objects.all()
-    addestratore_group, _ = Group.objects.get_or_create(name="Addestratore")
+    addestratore_group = Group.objects.get(name="Addestratore")
 
     if request.method == "POST":
-        user_id = request.POST.get("user_id")
-        user = User.objects.get(pk=user_id)
-        addestratore_group.user_set.add(user)
-        return redirect("account_management")
+        user_id = request.POST.get('user_id')
+        action  = request.POST.get('action')
+        try:
+            utente = User.objects.get(pk=user_id)
+            if action == "promote":
+                utente.groups.add(addestratore_group)
+            elif action == "degrade":
+                utente.groups.remove(addestratore_group)
+        except User.DoesNotExist:
+            pass  # silenziosamente ignora
+        return redirect('account_management')
 
-    return render(request, "account_app/account_management.html", {
-        "utenti": utenti,
-        "addestratore_group": addestratore_group
+    utenti = User.objects.all().order_by('username')
+    return render(request, 'account_app/account_management.html', {
+        'utenti': utenti,
+        'addestratore_group': addestratore_group,
     })
 
 

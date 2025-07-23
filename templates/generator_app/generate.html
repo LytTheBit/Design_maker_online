@@ -26,9 +26,22 @@
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center">
             <span class="fw-bold">{% trans "Ritocca Canny" %}</span>
-            <div>
-              <button id="tool-pen" class="btn btn-sm btn-light me-1">{% trans "Penna" %}</button>
-              <button id="tool-eraser" class="btn btn-sm btn-light">{% trans "Gomma" %}</button>
+            <div class="d-flex align-items-center">
+              <!-- strumenti penna / gomma -->
+              <button id="tool-pen"    class="btn btn-sm btn-light me-1">{% trans "Penna" %}</button>
+              <button id="tool-eraser" class="btn btn-sm btn-light me-1">{% trans "Gomma" %}</button>
+              <!-- pulsanti dimensione pennello -->
+              <button id="brush-small"
+                      class="btn btn-sm btn-outline-secondary me-1"
+                      aria-label="{% trans "Piccolo" %}">·</button>
+              <button id="brush-medium"
+                      class="btn btn-sm btn-outline-secondary me-1"
+                      aria-label="{% trans "Medio" %}">•</button>
+              <button id="brush-large"
+                      class="btn btn-sm btn-outline-secondary me-3"
+                      aria-label="{% trans "Grande" %}">●</button>
+              <!-- pulsante undo -->
+              <button id="undo" class="btn btn-sm btn-light" aria-label="{% trans "Torna indietro" %}">←</button>
             </div>
           </div>
           <div class="card-body p-0">
@@ -98,6 +111,7 @@
     const ctx = canvas.getContext('2d');
     let drawing = false;
     let color = '#ffffff';
+    const history = [];
 
     const img = new Image();
     img.src = "{{ canny_url }}";
@@ -107,15 +121,42 @@
       ctx.drawImage(img, 0, 0);
       ctx.lineWidth = 2;
       ctx.lineCap = 'round';
+
+      // stato iniziale
+      history.push(canvas.toDataURL());
+
+      // brush size
+      document.getElementById('brush-small').onclick  = () => { ctx.lineWidth = 2;  };
+      document.getElementById('brush-medium').onclick = () => { ctx.lineWidth = 5;  };
+      document.getElementById('brush-large').onclick  = () => { ctx.lineWidth = 10; };
+
+      // penna/gomma
+      document.getElementById('tool-pen').onclick    = () => color = '#ffffff';
+      document.getElementById('tool-eraser').onclick = () => color = '#000000';
+
+      // undo
+      document.getElementById('undo').onclick = () => {
+        if (history.length > 1) {
+          history.pop();
+          const dataUrl = history[history.length - 1];
+          const imgUndo = new Image();
+          imgUndo.onload = () => ctx.drawImage(imgUndo, 0, 0);
+          imgUndo.src = dataUrl;
+        }
+      };
     };
 
-    document.getElementById('tool-pen').onclick    = () => color = '#ffffff';
-    document.getElementById('tool-eraser').onclick = () => color = '#000000';
-
-    canvas.addEventListener('mousedown', e => { drawing = true; ctx.beginPath(); draw(e); });
+    canvas.addEventListener('mousedown', e => {
+      drawing = true;
+      ctx.beginPath();
+      draw(e);
+    });
     canvas.addEventListener('mousemove', draw);
-    canvas.addEventListener('mouseup',   () => drawing = false);
-    canvas.addEventListener('mouseout',  () => drawing = false);
+    canvas.addEventListener('mouseup', () => {
+      drawing = false;
+      history.push(canvas.toDataURL());
+    });
+    canvas.addEventListener('mouseout', () => drawing = false);
 
     function draw(e) {
       if (!drawing) return;

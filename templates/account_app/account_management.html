@@ -12,7 +12,7 @@
         <th>{% trans "Username" %}</th>
         <th>{% trans "Email" %}</th>
         <th>{% trans "Ruolo" %}</th>
-        <th>{% trans "Promuovi" %}</th>
+        <th>{% trans "Azioni" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -30,14 +30,28 @@
             {% endif %}
           </td>
           <td>
-            {% if not utente.is_superuser and addestratore_group not in utente.groups.all %}
-              <form method="post" style="display:inline;">
-                {% csrf_token %}
-                <input type="hidden" name="user_id" value="{{ utente.id }}">
-                <button class="btn btn-sm btn-success">
-                  {% trans "Promuovi ad Addestratore" %}
-                </button>
-              </form>
+            {% if not utente.is_superuser %}
+              {% if addestratore_group in utente.groups.all %}
+                {# già Addestratore → offri il downgrade #}
+                <form method="post" style="display:inline;">
+                  {% csrf_token %}
+                  <input type="hidden" name="user_id" value="{{ utente.id }}">
+                  <input type="hidden" name="action"  value="degrade">
+                  <button class="btn btn-sm btn-warning">
+                    {% trans "Degrada a Generatore" %}
+                  </button>
+                </form>
+              {% else %}
+                {# non ancora Addestratore → offri il promote #}
+                <form method="post" style="display:inline;">
+                  {% csrf_token %}
+                  <input type="hidden" name="user_id" name="user_id" value="{{ utente.id }}">
+                  <input type="hidden" name="action"  value="promote">
+                  <button class="btn btn-sm btn-success">
+                    {% trans "Promuovi ad Addestratore" %}
+                  </button>
+                </form>
+              {% endif %}
             {% endif %}
           </td>
         </tr>
