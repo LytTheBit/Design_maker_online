@@ -1,3 +1,4 @@
+#C:\Users\Utente\OneDrive\Documenti\GitHub\Design_maker_online\generator_app\views.py
 import os
 import uuid
 import cv2
@@ -9,6 +10,8 @@ from django.http import JsonResponse
 import base64
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from pathlib import Path
+
 
 
 
@@ -18,6 +21,13 @@ def generate(request):
     – POST con 'image': salva l’originale, genera il Canny e lo salva
     – POST con 'edited_canny': salva il Canny ritoccato e lo mostra
     """
+
+    models_dir = Path(settings.LORA_MODELS_DIR)
+    if not models_dir.is_dir():
+        model_list = []
+    else:
+        model_list = [p.name for p in models_dir.iterdir() if p.is_dir()]
+
 
     original_url = None
     canny_url    = None
@@ -65,8 +75,9 @@ def generate(request):
 
     # Passa sempre al template le URL (anche None)
     return render(request, 'generator_app/generate.html', {
-        'original_url': original_url,
-        'canny_url':    canny_url,
+        'original_url': original_url, # URL dell'immagine originale
+        'canny_url':    canny_url, # URL del Canny modificato
+        'models': model_list,  # Lista dei modelli disponibili
     })
 
 # Funzione per verificare se l'utente è autenticato
@@ -89,15 +100,16 @@ def generate_image(request):
         return JsonResponse({"error": "Richiesta non valida"}, status=400)
 
     # Recupera i dati dal form
-    prompt = request.POST.get("prompt")
-    negative_prompt = request.POST.get("negative_prompt", "").strip()
+    prompt = request.POST.get("prompt") # Prompt di testo
+    model = request.POST.get("model")  # Modello selezionato, se necessario
+    negative_prompt = request.POST.get("negative_prompt", "").strip() # Prompt negativo opzionale
 
-    canny_file = request.FILES.get("edited_canny")
+    canny_file = request.FILES.get("edited_canny") # Immagine Canny modificata
 
     try:
-        num_steps = int(request.POST.get("num_inference_steps", 80))
-        guidance = float(request.POST.get("guidance_scale", 9.0))
-        conditioning = float(request.POST.get("controlnet_conditioning_scale", 1.2))
+        num_steps = int(request.POST.get("num_inference_steps", 80)) # Numero di passi di inferenza
+        guidance = float(request.POST.get("guidance_scale", 9.0)) # Bilanciamento tra prompt e creatività
+        conditioning = float(request.POST.get("controlnet_conditioning_scale", 1.2)) # Controllo del peso dell'immagine guida
     except ValueError:
         return JsonResponse({"error": "Parametri numerici non validi"}, status=400)
 
@@ -119,6 +131,7 @@ def generate_image(request):
         payload = {
             "canny": img_data_url, # Usa l'immagine Canny come input
             "prompt": prompt, # Aggiungi il prompt
+            "model": model, # Aggiungi il modello se necessario
             "num_inference_steps": num_steps, # Aggiungi il numero di passi di inferenza
             "guidance_scale": guidance, # Aggiungi il guidance scale
             "controlnet_conditioning_scale": conditioning, # Aggiungi il conditioning scale

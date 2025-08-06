@@ -83,14 +83,14 @@
 
     <div class="user-area">
       {% if user.is_authenticated %}
-        <span class="me-3">Ciao, {{ user.username }}!</span>
+        <span class="me-3">{% trans "Ciao" %}, {{ user.username }}!</span>
         <form action="{% url 'logout' %}" method="post" class="d-inline">
           {% csrf_token %}
-          <button type="submit" class="btn btn-sm btn-light">Logout</button>
+          <button type="submit" class="btn btn-sm btn-light">{% trans "Logout" %}</button>
         </form>
       {% else %}
-        <a href="{% url 'login' %}" class="btn btn-sm btn-light me-2">Login</a>
-        <a href="{% url 'register' %}" class="btn btn-sm btn-light">Registrati</a>
+        <a href="{% url 'login' %}" class="btn btn-sm btn-light me-2">{% trans "Login" %}</a>
+        <a href="{% url 'register' %}" class="btn btn-sm btn-light">{% trans "Registrati" %}</a>
       {% endif %}
 
       <!-- Language switcher -->

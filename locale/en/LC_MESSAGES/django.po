@@ -1,0 +1,281 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-08-06 11:07+0200\n"
+"PO-Revision-Date: 2025-08-06 10:45+0200\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: English <en@li.org>\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: .\templates\account_app\account_management.html:4
+#: .\templates\account_app\account_management.html:8
+#: .\templates\menu_app\home_auth.html:20
+msgid "Gestione Account"
+msgstr "Account Management"
+
+#: .\templates\account_app\account_management.html:12
+msgid "Username"
+msgstr "Username"
+
+#: .\templates\account_app\account_management.html:13
+msgid "Email"
+msgstr "Email"
+
+#: .\templates\account_app\account_management.html:14
+msgid "Ruolo"
+msgstr "Role"
+
+#: .\templates\account_app\account_management.html:15
+msgid "Azioni"
+msgstr "Actions"
+
+#: .\templates\account_app\account_management.html:25
+msgid "Admin"
+msgstr "Admin"
+
+#: .\templates\account_app\account_management.html:27
+msgid "Addestratore"
+msgstr "Trainer"
+
+#: .\templates\account_app\account_management.html:29
+msgid "Generatore"
+msgstr "Generator"
+
+#: .\templates\account_app\account_management.html:41
+msgid "Degrada a Generatore"
+msgstr "Demote to Generator"
+
+#: .\templates\account_app\account_management.html:51
+msgid "Promuovi ad Addestratore"
+msgstr "Promote to Trainer"
+
+#: .\templates\account_app\login.html:4
+msgid "Login - GlassMaker"
+msgstr "Login - GlassMaker"
+
+#: .\templates\account_app\login.html:8
+msgid "Accedi al tuo account"
+msgstr "Log in to your account"
+
+#: .\templates\account_app\login.html:32
+msgid "Accedi"
+msgstr "Log in"
+
+#: .\templates\account_app\register.html:4
+msgid "Registrati - GlassMaker"
+msgstr "Register - GlassMaker"
+
+#: .\templates\account_app\register.html:8
+msgid "Crea un nuovo account"
+msgstr "Create a new account"
+
+#: .\templates\account_app\register.html:31 .\templates\base.html:93
+#: .\templates\base.html:140 .\templates\menu_app\home_anon.html:17
+msgid "Registrati"
+msgstr "Register"
+
+#: .\templates\base.html:86
+msgid "Ciao"
+msgstr "Hello"
+
+#: .\templates\base.html:89
+msgid "Logout"
+msgstr "Logout"
+
+#: .\templates\base.html:92 .\templates\base.html:141
+#: .\templates\menu_app\home_anon.html:14
+msgid "Login"
+msgstr "Login"
+
+#: .\templates\base.html:131
+msgid "DESIGNMAKER"
+msgstr "DESIGNMAKER"
+
+#: .\templates\base.html:132
+msgid ""
+"Questo sito è stato sviluppato da Francesco Bonaiuti nel corso del 2025 per "
+"la tesi triennale della facoltà di Ingegneria Informatica del Università "
+"degli Studi di Firenze"
+msgstr ""
+"This site was developed by Francesco Bonaiuti in 2025 for the bachelor's "
+"thesis at the Faculty of Computer Engineering of the University of Florence"
+
+#: .\templates\base.html:135
+msgid "LINK UTILI"
+msgstr "USEFUL LINKS"
+
+#: .\templates\base.html:137
+msgid "Pagina iniziale"
+msgstr "Home Page"
+
+#: .\templates\base.html:138
+msgid "Genera Design"
+msgstr "Generate Design"
+
+#: .\templates\base.html:139
+msgid "Addestra modello"
+msgstr "Train Model"
+
+#: .\templates\base.html:145
+msgid "CONTATTI"
+msgstr "CONTACTS"
+
+#: .\templates\base.html:147
+msgid "Realizzato da"
+msgstr "Developed by"
+
+#: .\templates\base.html:148
+msgid "Università degli Studi di Firenze"
+msgstr "University of Florence"
+
+#: .\templates\base.html:153
+msgid "Progetto di tesi"
+msgstr "Thesis project"
+
+#: .\templates\generator_app\generate.html:5
+msgid "Genera e Ritocca Canny - GlassMaker"
+msgstr "Generate and Edit Canny - GlassMaker"
+
+#: .\templates\generator_app\generate.html:9
+msgid "Genera e ritocca il Canny del bicchiere"
+msgstr "Generate and edit the glass Canny"
+
+#: .\templates\generator_app\generate.html:16
+msgid "Genera Canny"
+msgstr "Generate Canny"
+
+#: .\templates\generator_app\generate.html:23
+#: .\templates\generator_app\generate.html:24
+msgid "Originale"
+msgstr "Original"
+
+#: .\templates\generator_app\generate.html:30
+msgid "Ritocca Canny"
+msgstr "Edit Canny"
+
+#: .\templates\generator_app\generate.html:32
+msgid "Penna"
+msgstr "Pen"
+
+#: .\templates\generator_app\generate.html:33
+msgid "Gomma"
+msgstr "Eraser"
+
+#: .\templates\generator_app\generate.html:34
+msgid "Piccolo"
+msgstr "Small"
+
+#: .\templates\generator_app\generate.html:35
+msgid "Medio"
+msgstr "Medium"
+
+#: .\templates\generator_app\generate.html:36
+msgid "Grande"
+msgstr "Large"
+
+#: .\templates\generator_app\generate.html:37
+msgid "Torna indietro"
+msgstr "Go back"
+
+#: .\templates\generator_app\generate.html:53
+msgid "Modello"
+msgstr "Model"
+
+#: .\templates\generator_app\generate.html:63
+msgid "Prompt"
+msgstr "Prompt"
+
+#: .\templates\generator_app\generate.html:65
+msgid "Es. A photorealistic transparent glass tumbler on a white table..."
+msgstr "Ex. A photorealistic transparent glass tumbler on a white table..."
+
+#: .\templates\generator_app\generate.html:70
+msgid "Inference Steps"
+msgstr "Inference Steps"
+
+#: .\templates\generator_app\generate.html:75
+msgid "Impostazioni avanzate"
+msgstr "Advanced settings"
+
+#: .\templates\generator_app\generate.html:84
+msgid "Guidance Scale"
+msgstr "Guidance Scale"
+
+#: .\templates\generator_app\generate.html:88
+msgid "Conditioning Scale"
+msgstr "Conditioning Scale"
+
+#: .\templates\generator_app\generate.html:93
+msgid "Negative Prompt"
+msgstr "Negative Prompt"
+
+#: .\templates\generator_app\generate.html:99
+msgid "Genera Immagine"
+msgstr "Generate Image"
+
+#: .\templates\generator_app\generate.html:107
+msgid "Risultato"
+msgstr "Result"
+
+#: .\templates\generator_app\generate.html:110
+msgid "Scarica Immagine"
+msgstr "Download Image"
+
+#: .\templates\generator_app\generate.html:190
+msgid "Inserisci un prompt!"
+msgstr "Please enter a prompt!"
+
+#: .\templates\generator_app\generate.html:224
+msgid "Errore nella generazione."
+msgstr "Error during generation."
+
+#: .\templates\generator_app\generate.html:229
+msgid "Errore nella connessione al server."
+msgstr "Server connection error."
+
+#: .\templates\generator_app\train_lora.html:4
+#: .\templates\menu_app\home_auth.html:16
+msgid "Addestra un LoRA"
+msgstr "Train a LoRA"
+
+#: .\templates\generator_app\train_lora.html:9
+msgid "Questa funzione è ancora in fase di implementazione"
+msgstr "This feature is still under development"
+
+#: .\templates\generator_app\train_lora.html:11
+msgid "Ti serve un ruolo superiore per accedere a questa pagina"
+msgstr "You need a higher role to access this page"
+
+#: .\templates\menu_app\home_anon.html:5
+msgid "Benvenuto – DesignMaker"
+msgstr "Welcome – DesignMaker"
+
+#: .\templates\menu_app\home_anon.html:10
+msgid "Benvenuto in DesignMaker"
+msgstr "Welcome to DesignMaker"
+
+#: .\templates\menu_app\home_anon.html:11
+msgid "Per iniziare, effettua il login o registrati."
+msgstr "To get started, log in or register."
+
+#: .\templates\menu_app\home_auth.html:5
+msgid "Dashboard – DesignMaker"
+msgstr "Dashboard – DesignMaker"
+
+#: .\templates\menu_app\home_auth.html:10
+msgid "Cosa vuoi fare oggi?"
+msgstr "What would you like to do today?"
+
+#: .\templates\menu_app\home_auth.html:13
+msgid "Genera bicchieri"
+msgstr "Generate glasses"

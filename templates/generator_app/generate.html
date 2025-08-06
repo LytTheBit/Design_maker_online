@@ -1,5 +1,6 @@
+<!-- generate.html -->
 {% extends 'base.html' %}
-{% load static i18n %}
+{% load static i18n %}pyth
 
 {% block title %}{% trans "Genera e Ritocca Canny - GlassMaker" %}{% endblock %}
 
@@ -46,6 +47,17 @@
     {# --- form per invocare la generazione FastAPI --- #}
     <form id="saveForm" method="post" class="mt-4">
       {% csrf_token %}
+
+      <!-- Qui va inserito, dentro il <form id="saveForm">, prima del prompt -->
+      <div class="mb-3">
+        <label for="modelSelect" class="form-label">{% trans "Modello" %}</label>
+        <select name="model" id="modelSelect" class="form-select">
+          {% for m in models %}
+            <option value="{{ m }}">{{ m }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
 
       <div class="mb-3">
         <label for="promptInput" class="form-label">{% trans "Prompt" %}</label>
@@ -185,12 +197,15 @@
 
       canvas.toBlob(async blob=>{
         const fd = new FormData();
-        fd.append('edited_canny', new File([blob],'edited.png',{type:'image/png'}));
-        fd.append('prompt', prompt);
-        fd.append('num_inference_steps', document.getElementById("numSteps").value);
-        fd.append('guidance_scale', document.getElementById("guidanceScale").value);
-        fd.append('controlnet_conditioning_scale', document.getElementById("condScale").value);
-        fd.append('negative_prompt', document.getElementById("negativePrompt").value);
+        fd.append('edited_canny', new File([blob],'edited.png',{type:'image/png'})); // aggiungi il Canny modificato
+        fd.append('prompt', prompt); // aggiungi il prompt
+        fd.append('num_inference_steps', document.getElementById("numSteps").value); // aggiungi il numero di steps
+        fd.append('guidance_scale', document.getElementById("guidanceScale").value); // aggiungi il guidance scale
+        fd.append('controlnet_conditioning_scale', document.getElementById("condScale").value); // aggiungi il conditioning scale
+        fd.append('negative_prompt', document.getElementById("negativePrompt").value); // aggiungi il negative prompt
+        const selModel = document.getElementById("modelSelect").value;
+        fd.append('model', selModel); // seleziona il modello
+
 
         try {
           const resp = await fetch("{% url 'generate_image' %}", {

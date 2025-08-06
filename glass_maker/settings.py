@@ -17,6 +17,13 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # Directory for media files
 
+LORA_MODELS_DIR = Path(
+    os.environ.get(
+        "LORA_MODELS_DIR",
+        BASE_DIR.parent / "progetto-tesi-control-lora-v3-main" / "modelli"
+    )
+)
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
