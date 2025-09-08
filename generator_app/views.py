@@ -93,7 +93,7 @@ def train_lora(request):
         })
 
 # Codice per la generazione di immagini tramite un server IA esterno
-LAMBDA_SERVER_URL = "http://127.0.0.1:8001/generate"
+LAMBDA_SERVER_URL = "http://127.0.0.1:8000/generate"
 
 def generate_image(request):
     if request.method != "POST":
@@ -107,9 +107,9 @@ def generate_image(request):
     canny_file = request.FILES.get("edited_canny") # Immagine Canny modificata
 
     try:
-        num_steps = int(request.POST.get("num_inference_steps", 80)) # Numero di passi di inferenza
-        guidance = float(request.POST.get("guidance_scale", 9.0)) # Bilanciamento tra prompt e creatività
-        conditioning = float(request.POST.get("controlnet_conditioning_scale", 1.2)) # Controllo del peso dell'immagine guida
+        num_steps = int(request.POST.get("num_inference_steps", 150)) # Numero di passi di inferenza
+        guidance = float(request.POST.get("guidance_scale", 20)) # Bilanciamento tra prompt e creatività
+        conditioning = float(request.POST.get("controlnet_conditioning_scale", 0.6)) # Controllo del peso dell'immagine guida
     except ValueError:
         return JsonResponse({"error": "Parametri numerici non validi"}, status=400)
 
