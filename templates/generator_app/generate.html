@@ -68,7 +68,7 @@
       <div class="row mb-3">
         <div class="col-md-6">
           <label for="numSteps" class="form-label">{% trans "Inference Steps" %}</label>
-          <input type="number" id="numSteps" name="num_inference_steps" class="form-control" value="80">
+          <input type="number" id="numSteps" name="num_inference_steps" class="form-control" value="150">
         </div>
         <div class="col-md-6 d-flex align-items-end">
           <button type="button" id="toggle-advanced" class="btn btn-outline-light btn-sm ms-auto">
@@ -82,11 +82,11 @@
       <div class="row mb-3">
         <div class="col-md-6">
           <label for="guidanceScale" class="form-label">{% trans "Guidance Scale" %}</label>
-          <input type="number" id="guidanceScale" name="guidance_scale" class="form-control" step="0.1" value="9.0">
+          <input type="number" id="guidanceScale" name="guidance_scale" class="form-control" step="0.1" value="20">
         </div>
         <div class="col-md-6">
           <label for="condScale" class="form-label">{% trans "Conditioning Scale" %}</label>
-          <input type="number" id="condScale" name="controlnet_conditioning_scale" class="form-control" step="0.1" value="1.2">
+          <input type="number" id="condScale" name="extra_condition_scale" class="form-control" step="0.1" value="0.6">
         </div>
       </div>
       <div class="mb-3">

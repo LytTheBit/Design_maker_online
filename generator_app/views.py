@@ -109,7 +109,7 @@ def generate_image(request):
     try:
         num_steps = int(request.POST.get("num_inference_steps", 150)) # Numero di passi di inferenza
         guidance = float(request.POST.get("guidance_scale", 20)) # Bilanciamento tra prompt e creatività
-        conditioning = float(request.POST.get("controlnet_conditioning_scale", 0.6)) # Controllo del peso dell'immagine guida
+        conditioning = float(request.POST.get("extra_condition_scale", 0.6)) # Controllo del peso dell'immagine guida
     except ValueError:
         return JsonResponse({"error": "Parametri numerici non validi"}, status=400)
 
@@ -134,7 +134,7 @@ def generate_image(request):
             "model": model, # Aggiungi il modello se necessario
             "num_inference_steps": num_steps, # Aggiungi il numero di passi di inferenza
             "guidance_scale": guidance, # Aggiungi il guidance scale
-            "controlnet_conditioning_scale": conditioning, # Aggiungi il conditioning scale
+            "extra_condition_scale": conditioning, # Aggiungi il conditioning scale
             "negative_prompt": negative_prompt, # Aggiungi il negative prompt se presente
         }
 
