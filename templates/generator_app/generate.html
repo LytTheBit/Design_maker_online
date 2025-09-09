@@ -201,7 +201,7 @@
         fd.append('prompt', prompt); // aggiungi il prompt
         fd.append('num_inference_steps', document.getElementById("numSteps").value); // aggiungi il numero di steps
         fd.append('guidance_scale', document.getElementById("guidanceScale").value); // aggiungi il guidance scale
-        fd.append('controlnet_conditioning_scale', document.getElementById("condScale").value); // aggiungi il conditioning scale
+        fd.append('extra_condition_scale', document.getElementById("condScale").value); // aggiungi il conditioning scale
         fd.append('negative_prompt', document.getElementById("negativePrompt").value); // aggiungi il negative prompt
         const selModel = document.getElementById("modelSelect").value;
         fd.append('model', selModel); // seleziona il modello
