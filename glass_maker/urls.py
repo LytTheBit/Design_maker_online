@@ -27,13 +27,14 @@ urlpatterns = [
 urlpatterns += i18n_patterns(
     path('admin/', admin.site.urls),
 
-    path('menu/',     include('menu_app.urls')),
-    path('account/',  include('account_app.urls')),
-    path('generator/',include('generator_app.urls')),
+    path('menu/',     include('menu_app.urls')), # Per il menu
+    path('account/',  include('account_app.urls')), # Per login/logout
+    path('generator/',include('generator_app.urls')), # Per la generazione immagini
 
     path('', include('menu_app.urls')),
 
-    prefix_default_language=True,
+    prefix_default_language=False,
 )
 
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
