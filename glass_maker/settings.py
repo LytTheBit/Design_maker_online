@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+import sys
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -175,13 +177,14 @@ LORA_BASE_MODELS = {
 }
 
 # Comando CLI per lanciare il training (PLUGGABLE)
-# Usa placeholder che la task sostituisce con .format(**ctx)
+TRAIN_PY = sys.executable
+TRAIN_SCRIPT = BASE_DIR.parent / "progetto-tesi-control-lora-v3-main" / "tools" / "train_lora_cli.py"
+
 TRAIN_CMD = (
-    "python progetto-tesi-control-lora-v3-main/tools/train_lora_cli.py "
-    "--base \"{base_model}\" --dataset \"{dataset_dir}\" --out \"{out_dir}\" "
+    f'"{TRAIN_PY}" -u "{TRAIN_SCRIPT}" '
+    '--base "{base_model}" --dataset "{dataset_dir}" --out "{out_dir}" '
     "--steps {steps} --rank {rank} --lr {lr}"
 )
-
 # Celery settings
 CELERY_BROKER_URL = "redis://localhost:6379/0"
 CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
