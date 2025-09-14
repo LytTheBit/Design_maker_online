@@ -1,4 +1,4 @@
-<!-- train.html -->
+<!-- templates/trainer_app/train.html -->
 {% extends 'base.html' %}
 {% load i18n widget_tweaks %}
 
@@ -11,9 +11,10 @@
     <h2 class="mb-0">{% trans "Addestramento nuovo modello LoRA" %}</h2>
   </div>
 
-    {% if form.non_field_errors %}
-      <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-    {% endif %}
+  {# errori non-campo (es: "carica zip o immagini") #}
+  {% if form.non_field_errors %}
+    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+  {% endif %}
 
   <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
     {% csrf_token %}
@@ -24,22 +25,27 @@
           <div class="col-md-4">
             <label class="form-label">{{ form.name.label }}</label>
             {% render_field form.name class="form-control" placeholder="nome-modello" %}
+            {% if form.name.errors %}<div class="text-danger small">{{ form.name.errors|join:", " }}</div>{% endif %}
           </div>
           <div class="col-md-4">
             <label class="form-label">{% trans "Base model" %}</label>
             {% render_field form.base_model class="form-select" %}
+            {% if form.base_model.errors %}<div class="text-danger small">{{ form.base_model.errors|join:", " }}</div>{% endif %}
           </div>
           <div class="col-md-2">
             <label class="form-label">{{ form.steps.label }}</label>
             {% render_field form.steps class="form-control" %}
+            {% if form.steps.errors %}<div class="text-danger small">{{ form.steps.errors|join:", " }}</div>{% endif %}
           </div>
           <div class="col-md-1">
             <label class="form-label">{{ form.rank.label }}</label>
             {% render_field form.rank class="form-control" %}
+            {% if form.rank.errors %}<div class="text-danger small">{{ form.rank.errors|join:", " }}</div>{% endif %}
           </div>
           <div class="col-md-1">
             <label class="form-label">{{ form.lr.label }}</label>
             {% render_field form.lr class="form-control" %}
+            {% if form.lr.errors %}<div class="text-danger small">{{ form.lr.errors|join:", " }}</div>{% endif %}
           </div>
         </div>
 
@@ -50,22 +56,26 @@
             <div class="border rounded-3 p-3 h-100">
               <div class="mb-2 fw-semibold">{% trans "Opzione A: carica ZIP del dataset" %}</div>
               {% render_field form.zip_dataset class="form-control" %}
+              {% if form.zip_dataset.errors %}<div class="text-danger small mt-1">{{ form.zip_dataset.errors|join:", " }}</div>{% endif %}
               <small class="text-muted d-block mt-2">
                 {% trans "ZIP con immagini e (opzionale) captions.txt." %}
               </small>
             </div>
           </div>
+
           <div class="col-lg-6">
             <div class="border rounded-3 p-3 h-100">
               <div class="mb-2 fw-semibold">{% trans "Opzione B: immagini singole" %}</div>
               <div class="mb-2">
                 <label class="form-label">{{ form.images.label|default:"Immagini" }}</label>
                 {% render_field form.images class="form-control" %}
+                {% if form.images.errors %}<div class="text-danger small mt-1">{{ form.images.errors|join:", " }}</div>{% endif %}
                 <small class="text-muted d-block">{% trans "Puoi selezionare più file." %}</small>
               </div>
               <div>
                 <label class="form-label">{{ form.captions.label|default:"Captions" }}</label>
                 {% render_field form.captions class="form-control" %}
+                {% if form.captions.errors %}<div class="text-danger small mt-1">{{ form.captions.errors|join:", " }}</div>{% endif %}
                 <small class="text-muted d-block">
                   {% trans "Formato" %} <code>captions.txt</code>:
                   {% trans "una riga per file" %} <code>filename.jpg|caption</code>.
@@ -111,7 +121,6 @@
 </div>
 
 <style>
-  /* solo per questa pagina */
   .logbox{
     height: 320px;
     background: #0f172a;
@@ -126,7 +135,6 @@
 
 {% if job_id %}
 <script>
-  // spinner su submit
   const submitBtn = document.getElementById('submitBtn');
   const spinner = document.getElementById('spinner');
   if (submitBtn) {
@@ -136,7 +144,6 @@
     });
   }
 
-  // polling stato job + autoscroll log
   const job = "{{ job_id }}";
   function autoscroll(el){ el.scrollTop = el.scrollHeight; }
   async function poll(){
