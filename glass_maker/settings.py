@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'menu_app',  # Custom app for the menu
     'glass_maker',  # Main app for the project
     'generator_app',  # App for image generation
+    'trainer_app',   # App for training LoRA models
     'widget_tweaks' # For adding CSS classes to form fields
 ]
 
@@ -143,8 +144,7 @@ LOCALE_PATHS = [
 ]
 
 
-TIME_ZONE = 'UTC'
-
+TIME_ZONE = "Europe/Rome"
 USE_TZ = True
 
 
@@ -162,3 +162,30 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Dove salvare dataset e LoRA
+MEDIA_URL = "/media/" # URL per accedere ai media
+
+
+# Modelli di base selezionabili (nome visibile -> percorso locale o HF id)
+LORA_BASE_MODELS = {
+    "SD 1.5 (runwayml)": "runwayml/stable-diffusion-v1-5",
+    "Realistic Vision 4.0": "SG161222/Realistic_Vision_V4.0_noVAE",
+    # "SDXL (facoltativo)": "stabilityai/stable-diffusion-xl-base-1.0",
+}
+
+# Comando CLI per lanciare il training (PLUGGABLE)
+# Usa placeholder che la task sostituisce con .format(**ctx)
+TRAIN_CMD = (
+    "python progetto-tesi-control-lora-v3-main/tools/train_lora_cli.py "
+    "--base \"{base_model}\" --dataset \"{dataset_dir}\" --out \"{out_dir}\" "
+    "--steps {steps} --rank {rank} --lr {lr}"
+)
+
+# Celery settings
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+
+CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_EAGER_PROPAGATES = True
+

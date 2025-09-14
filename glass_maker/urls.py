@@ -21,20 +21,24 @@ from django.urls import path, include
 from django.conf.urls.i18n import i18n_patterns
 
 urlpatterns = [
+    # switch lingua (sempre senza prefisso)
     path('i18n/', include('django.conf.urls.i18n')),
 ]
 
 urlpatterns += i18n_patterns(
     path('admin/', admin.site.urls),
 
-    path('menu/',     include('menu_app.urls')), # Per il menu
-    path('account/',  include('account_app.urls')), # Per login/logout
-    path('generator/',include('generator_app.urls')), # Per la generazione immagini
+    path('menu/',      include('menu_app.urls')), # per testare il menu senza cambiare la homepage
+    path('account/',   include('account_app.urls')), # login, logout, registrazione, profilo
+    path('generator/', include('generator_app.urls')), # generatore di immagini (bicchieri)
+    path('trainer/',   include('trainer_app.urls')), # addestramento AI
 
+    # homepage
     path('', include('menu_app.urls')),
 
     prefix_default_language=False,
 )
 
+# Servi i MEDIA solo in sviluppo
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
