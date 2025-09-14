@@ -11,6 +11,10 @@
     <h2 class="mb-0">{% trans "Addestramento nuovo modello LoRA" %}</h2>
   </div>
 
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+    {% endif %}
+
   <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
     {% csrf_token %}
 

@@ -2,7 +2,6 @@ from django import forms
 from django.conf import settings
 from django.forms.widgets import ClearableFileInput
 
-# 👇 Widget che abilita davvero il multiple su Django 5.x
 class MultiFileInput(ClearableFileInput):
     allow_multiple_selected = True
 
@@ -13,10 +12,15 @@ class TrainingForm(forms.Form):
     rank  = forms.IntegerField(min_value=4, max_value=128, initial=16)
     lr    = forms.FloatField(initial=1e-4)
 
-    # Dataset: o zip o immagini + captions
     zip_dataset = forms.FileField(required=False)
-    images = forms.FileField(
-        widget=MultiFileInput(attrs={"multiple": True, "accept": "image/*"}),
-        required=False
-    )
+    images = forms.FileField(widget=MultiFileInput(attrs={"multiple": True, "accept": "image/*"}), required=False)
     captions = forms.FileField(required=False)
+
+    def clean(self):
+        cleaned = super().clean()
+        # serve almeno uno tra zip o immagini
+        has_zip = bool(cleaned.get("zip_dataset"))
+        has_imgs = bool(self.files.getlist("images"))  # <— importante
+        if not has_zip and not has_imgs:
+            raise forms.ValidationError("Carica un dataset: ZIP oppure immagini singole.")
+        return cleaned
