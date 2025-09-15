@@ -178,7 +178,7 @@ LORA_BASE_MODELS = {
 }
 
 # Comando CLI per lanciare il training (PLUGGABLE)
-TRAIN_PY = sys.executable
+TRAIN_PY = r"C:\venv_control_lora_py311\Scripts\python.exe"
 TRAIN_SCRIPT = os.environ.get(
     "TRAIN_SCRIPT",
     str(BASE_DIR.parent / "progetto-tesi-control-lora-v3-main" / "tools" / "train_lora_cli.py"),
