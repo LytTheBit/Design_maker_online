@@ -171,11 +171,13 @@ MEDIA_URL = "/media/" # URL per accedere ai media
 
 
 # Modelli di base selezionabili (nome visibile -> percorso locale o HF id)
-LORA_BASE_MODELS = {
-    "SD 1.5 (runwayml)": "runwayml/stable-diffusion-v1-5",
-    "Realistic Vision 4.0": "SG161222/Realistic_Vision_V4.0_noVAE",
-    # "SDXL (facoltativo)": "stabilityai/stable-diffusion-xl-base-1.0",
-}
+LORA_MODELS_DIR = Path(
+    os.environ.get(
+        "LORA_MODELS_DIR",
+        BASE_DIR.parent / "progetto-tesi-control-lora-v3-main" / "modelli"
+    )
+)
+# LORA_MODELS_DIR = Path(MEDIA_ROOT) / "lora" # (se vuoi tenerli dentro media/)
 
 # Comando CLI per lanciare il training (PLUGGABLE)
 TRAIN_PY = r"C:\venv_control_lora_py311\Scripts\python.exe"
@@ -197,7 +199,7 @@ TRAIN_CMD = (
 CELERY_BROKER_URL = "redis://localhost:6379/0"
 CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 
-CELERY_TASK_ALWAYS_EAGER = True
-CELERY_TASK_EAGER_PROPAGATES = True
+CELERY_TASK_ALWAYS_EAGER = False
+CELERY_TASK_EAGER_PROPAGATES = False
 
 

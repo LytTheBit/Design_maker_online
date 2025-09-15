@@ -24,7 +24,6 @@ def generate(request):
     – POST con 'edited_canny': salva il Canny ritoccato e lo mostra
     """
 
-    # ⬇️  PRIMA leggevi le cartelle; ORA leggiamo dal DB:
     model_list = list(
         LoraModel.objects
         .filter(is_active=True)

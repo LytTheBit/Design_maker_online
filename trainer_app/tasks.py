@@ -1,119 +1,106 @@
 # trainer_app/tasks.py
-import os
-import sys
-import shlex
-import subprocess
-from pathlib import Path
-
 from celery import shared_task
 from django.conf import settings
+from django.utils.text import slugify
+from generator_app.models import LoraModel
 
-from .models import TrainingJob
-
+import os, re, io, json, shutil, subprocess
 
 @shared_task(bind=True)
 def run_training_task(self, job_id: str):
-    """
-    Lancia l'addestramento e streamma stdout/stderr nel campo 'log',
-    così lo vedi live nella pagina. Funziona anche su Windows perché
-    usa una lista di argomenti (niente quoting manuale).
-    """
+    from .models import TrainingJob
     job = TrainingJob.objects.get(id=job_id)
+
     job.status = "running"
     job.progress = 1
-    job.log = ""
+    job.log = "Avvio training…\n"
     job.save(update_fields=["status", "progress", "log"])
 
-    # cartelle I/O
-    dataset_dir = Path(settings.MEDIA_ROOT) / "training_datasets" / job_id
-    out_dir     = Path(settings.MEDIA_ROOT) / "training_out" / job_id
-    out_dir.mkdir(parents=True, exist_ok=True)
+    cmd = settings.TRAIN_CMD.format(
+        base_model=job.base_model,
+        dataset_dir=str(job.dataset_dir),
+        out_dir=str(job.out_dir),
+        steps=job.steps,
+        rank=job.rank,
+        lr=job.lr,
+    )
 
-    # mapping "nome visibile" -> HuggingFace id
-    base_id = settings.LORA_BASE_MODELS.get(job.base_model, job.base_model)
-
-    # percorso allo script di training
-    script = Path(settings.TRAIN_SCRIPT)
-    if not script.exists():
-        job.status = "failed"
-        job.log = f"ERRORE: script non trovato:\n{script}\n"
-        job.save(update_fields=["status", "log"])
-        return
-
-    # python dell'ambiente virtuale
-    py = sys.executable
-
-    # Comando come LISTA (robusto su Windows)
-    cmd = [
-        py, str(script),
-        "--base", base_id,
-        "--dataset", str(dataset_dir),
-        "--out", str(out_dir),
-        "--steps", str(job.steps),
-        "--rank",  str(job.rank),
-        "--lr",    str(job.lr),
-    ]
-
-    # Logga il comando completo (quotato)
-    pretty_cmd = " ".join(shlex.quote(c) for c in cmd)
-    job.log += f"$ {pretty_cmd}\n\n"
-    job.save(update_fields=["log"])
-
-    # Ambiente e working dir (opzionali: tieni il repo come cwd)
     env = os.environ.copy()
-    cwd = settings.TRAIN_CWD
+    env["PYTHONUNBUFFERED"] = "1"
+
+    proc = subprocess.Popen(
+        cmd,
+        shell=True,
+        env=env,
+        cwd=str(settings.BASE_DIR),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        bufsize=1,
+        text=True,
+    )
+
+    step_re = re.compile(r"^step=(\d+)\s*$")
+    total = max(1, int(job.steps))
 
     try:
-        # Stream stdout+stderr
-        proc = subprocess.Popen(
-            cmd,
-            cwd=cwd,
-            env=env,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1,
+        for line in proc.stdout:
+            job.log += line
+            m = step_re.match(line.strip())
+            if m:
+                cur = int(m.group(1))
+                job.progress = min(99, int(cur * 100 / total))
+            job.save(update_fields=["log", "progress"])
+        proc.wait()
+
+        if proc.returncode != 0:
+            job.status = "failed"
+            job.progress = max(job.progress, 5)
+            job.log += f"\nProcesso terminato con codice {proc.returncode}.\n"
+            job.save(update_fields=["status", "progress", "log"])
+            raise RuntimeError(f"Training failed with exit {proc.returncode}")
+
+        # === success ===
+        src = job.out_dir / "pytorch_lora_weights.safetensors"
+        if not src.exists():
+            cand = list(job.out_dir.glob("*.safetensors"))
+            if not cand:
+                raise FileNotFoundError("Nessun file .safetensors prodotto dal training.")
+            src = cand[0]
+
+        safe_name = slugify(job.name or f"lora-{job.id}")
+        dest_dir = settings.LORA_MODELS_DIR / safe_name
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        out_file = dest_dir / "pytorch_lora_weights.safetensors"
+
+        # una sola copia
+        shutil.copy2(src, out_file)
+
+        # metadati utili
+        (dest_dir / "meta.json").write_text(json.dumps({
+            "name": job.name,
+            "base": job.base_model,
+            "steps": job.steps,
+            "rank": job.rank,
+            "lr": job.lr,
+        }, ensure_ascii=False, indent=2), encoding="utf-8")
+
+        # path relativo per il FileField
+        rel_path = str(out_file.relative_to(settings.MEDIA_ROOT))
+
+        # aggiorna/crea il modello nel DB (comparirà nel menù del generatore)
+        LoraModel.objects.update_or_create(
+            name=safe_name,
+            defaults={"file": rel_path, "is_active": True},
         )
 
-        for line in proc.stdout:
-            # Heuristica molto semplice per la progress bar
-            if "step" in line.lower():
-                try:
-                    # se i tuoi log hanno "step 123/1000" puoi calcolare %
-                    part = line.lower().split("step")[-1]
-                    num, den = None, None
-                    if "/" in part:
-                        num, den = part.split("/", 1)
-                        num = int("".join(ch for ch in num if ch.isdigit()))
-                        den = int("".join(ch for ch in den if ch.isdigit()))
-                        if den:
-                            job.progress = max(job.progress, min(99, int(num * 100 / den)))
-                except Exception:
-                    pass
-
-            job.log += line
-            job.save(update_fields=["log", "progress"])
-
-        proc.wait()
-        rc = proc.returncode
-
-    except FileNotFoundError as e:
-        job.status = "failed"
-        job.log += f"\nERRORE: eseguibile non trovato.\n{e}\n"
-        job.save(update_fields=["status", "log"])
-        return
-    except Exception as e:
-        job.status = "failed"
-        job.log += f"\nECCEZIONE: {e}\n"
-        job.save(update_fields=["status", "log"])
-        return
-
-    if rc == 0:
+        job.lora_name = safe_name
         job.status = "completed"
         job.progress = 100
         job.log += "\nTraining completato con successo.\n"
-        job.save(update_fields=["status", "progress", "log"])
-    else:
+        job.save(update_fields=["lora_name", "status", "progress", "log"])
+
+    except Exception as e:
         job.status = "failed"
-        job.log += f"\nProcesso terminato con codice {rc}.\n"
+        job.log += f"\nERRORE: {e}\n"
         job.save(update_fields=["status", "log"])
+        raise
