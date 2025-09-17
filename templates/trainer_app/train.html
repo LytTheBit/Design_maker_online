@@ -175,3 +175,97 @@
 </script>
 {% endif %}
 {% endblock %}
+
+{% if job_id %}
+<hr>
+
+<style>
+  .tm-card { max-width: 900px; margin: 1rem auto; padding: 1rem 1.25rem; border: 1px solid #ddd; border-radius: 12px; background: #fff; }
+  .tm-row { display:flex; gap:1rem; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+  .tm-progress-outer { width:100%; height:16px; background:#eee; border-radius:999px; overflow:hidden; }
+  .tm-progress-inner { height:100%; width:0%; background:#3b82f6; transition: width .35s ease; }
+  .tm-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: 12px; white-space: pre-wrap; }
+  .tm-log { max-height: 260px; overflow: auto; background:#0f172a; color:#e2e8f0; padding:.75rem; border-radius:8px; }
+  .tm-muted { color:#666; }
+  .tm-btn { display:inline-block; padding:.6rem 1rem; border-radius:10px; text-decoration:none; background:#0ea5e9; color:#fff; border:none; }
+  .tm-btn.secondary { background:#64748b; }
+  .tm-hidden { display:none; }
+</style>
+
+<div class="tm-card" id="job-card" data-job="{{ job_id }}">
+  <div class="tm-row" style="margin-bottom:.5rem">
+    <strong>Training job:</strong> <span id="js-job-id">{{ job_id }}</span>
+    <span id="js-status" class="tm-muted">status: pending…</span>
+  </div>
+
+  <div class="tm-progress-outer" aria-label="Training progress">
+    <div class="tm-progress-inner" id="js-bar" style="width:0%"></div>
+  </div>
+  <div class="tm-row" style="margin-top:.5rem">
+    <span id="js-percent" class="tm-muted">0%</span>
+    <div>
+      <a href="/generator/generate/" class="tm-btn tm-hidden" id="js-go-gen">Apri Generatore</a>
+      <button type="button" class="tm-btn secondary tm-hidden" id="js-retry">Riprova</button>
+    </div>
+  </div>
+
+  <div style="margin-top:1rem">
+    <div class="tm-mono tm-log" id="js-log">(log…)</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const JOB_ID     = "{{ job_id }}";
+  if (!JOB_ID) return;
+
+  const STATUS_URL = "/trainer/status/" + JOB_ID + "/";
+
+  const elBar     = document.getElementById("js-bar");
+  const elPct     = document.getElementById("js-percent");
+  const elStatus  = document.getElementById("js-status");
+  const elLog     = document.getElementById("js-log");
+  const btnGen    = document.getElementById("js-go-gen");
+  const btnRetry  = document.getElementById("js-retry");
+
+  let stopped = false;
+  function setProgress(p){
+    const pct = Math.max(0, Math.min(100, parseInt(p || 0, 10)));
+    elBar.style.width = pct + "%";
+    elPct.textContent = pct + "%";
+  }
+
+  async function poll(){
+    if (stopped) return;
+    try{
+      const res = await fetch(STATUS_URL, { credentials: "same-origin", cache: "no-store" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const data = await res.json();
+
+      // aggiorna UI
+      if (typeof data.progress !== "undefined") setProgress(data.progress);
+      if (typeof data.log === "string") elLog.textContent = data.log || "";
+      if (data.status) elStatus.textContent = "status: " + data.status;
+
+      if (data.status === "completed"){
+        setProgress(100);
+        btnGen.classList.remove("tm-hidden");
+        stopped = true;
+        return;
+      }
+      if (data.status === "failed" || data.status === "error"){
+        btnRetry.classList.remove("tm-hidden");
+        stopped = true;
+        return;
+      }
+    }catch(err){
+      elStatus.textContent = "status: errore rete, ritento…";
+    }
+    setTimeout(poll, 1000);
+  }
+
+  btnRetry?.addEventListener("click", ()=>location.reload());
+  poll();
+})();
+</script>
+{% endif %}
