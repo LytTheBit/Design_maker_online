@@ -136,8 +136,8 @@
         <h5 class="fw-bold">{% trans "LINK UTILI" %}</h5>
         <ul class="list-unstyled">
           <li><a href="{% url 'home' %}" class="text-white text-decoration-underline">{% trans "Pagina iniziale" %}</a></li>
-          <li><a href="{% url 'generator' %}" class="text-white text-decoration-underline">{% trans "Genera Design" %}</a></li>
-          <li><a href="{% url 'train_lora' %}" class="text-white text-decoration-underline">{% trans "Addestra modello" %}</a></li>
+          <li><a href="{% url 'generator_app:generate' %}" class="text-white text-decoration-underline">{% trans "Genera Design" %}</a></li>
+           <li><a href="{% url 'trainer_app:train' %}" class="text-white text-decoration-underline">{% trans "Addestra modello" %}</a></li>
           <li><a href="{% url 'register' %}" class="text-white text-decoration-underline">{% trans "Registrati" %}</a></li>
           <li><a href="{% url 'login' %}" class="text-white text-decoration-underline">{% trans "Login" %}</a></li>
         </ul>

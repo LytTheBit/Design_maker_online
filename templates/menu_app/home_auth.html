@@ -9,12 +9,13 @@
 <div class="container" style="margin-top: 6rem;">
   <h2 class="mb-4">{% trans "Cosa vuoi fare oggi?" %}</h2>
   <div class="d-flex justify-content-center flex-wrap gap-3">
-      <a href="{% url 'generator' %}" class="btn btn-light btn-lg btn-custom">
-        {% trans "Genera bicchieri" %}
+      <a href="{% url 'generator_app:generate' %}" class="btn btn-light btn-lg btn-custom">
+          {% trans "Genera bicchieri" %}
       </a>
       <a href="{% url 'trainer_app:train' %}" class="btn btn-light btn-lg btn-custom">
-        {% trans "Addestra un LoRA" %}
+          {% trans "Addestra un LoRA" %}
       </a>
+
       {% if request.user.is_superuser %}
         <a href="{% url 'account_management' %}" class="btn btn-light btn-lg btn-custom">
           {% trans "Gestione Account" %}

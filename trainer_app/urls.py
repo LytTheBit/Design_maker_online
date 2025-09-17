@@ -4,6 +4,6 @@ from . import views
 app_name = "trainer_app" # Namespace for the app
 
 urlpatterns = [
-    path("train/", views.train_view, name="trainer_train"),
+    path("train/", views.train_view, name="train"),
     path("status/<uuid:job_id>/", views.training_status, name="status"),
 ]

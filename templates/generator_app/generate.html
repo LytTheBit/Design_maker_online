@@ -1,6 +1,6 @@
 <!-- generate.html -->
 {% extends 'base.html' %}
-{% load static i18n %}pyth
+{% load static i18n %}
 
 {% block title %}{% trans "Genera e Ritocca Canny - GlassMaker" %}{% endblock %}
 
@@ -208,7 +208,7 @@
 
 
         try {
-          const resp = await fetch("{% url 'generate_image' %}", {
+          const resp = await fetch("{% url 'generator_app:generate_image' %}", {
             method: 'POST',
             headers: { 'X-CSRFToken': getCSRFToken() },
             body: fd
