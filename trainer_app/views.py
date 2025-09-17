@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from .forms import TrainingForm
-from .tasks import start_training_in_background, run_training_task
+from .tasks import start_training_in_background
 from .models import TrainingJob
 
 log = logging.getLogger(__name__)

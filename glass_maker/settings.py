@@ -18,14 +18,8 @@ from pathlib import Path as _Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # Directory for media files
-
-LORA_MODELS_DIR = Path(
-    os.environ.get(
-        "LORA_MODELS_DIR",
-        BASE_DIR.parent / "progetto-tesi-control-lora-v3-main" / "modelli"
-    )
-)
+MEDIA_ROOT = Path(BASE_DIR) / "media"
+LORA_MODELS_DIR = MEDIA_ROOT / "lora"
 
 
 # Quick-start development settings - unsuitable for production
@@ -188,9 +182,9 @@ TRAIN_SCRIPT = os.environ.get(
 TRAIN_CWD = str(_Path(TRAIN_SCRIPT).parent)
 
 TRAIN_CMD = (
-    f'"{TRAIN_PY}" -u "{TRAIN_SCRIPT}" '
-    '--base "{base_model}" --dataset "{dataset_dir}" --out "{out_dir}" '
-    "--steps {steps} --rank {rank} --lr {lr}"
+    r"\"C:\venv_control_lora_py311\Scripts\python.exe\" "
+    r"\"C:\Users\Utente\OneDrive\Documenti\GitHub\progetto-tesi-control-lora-v3-main\tools\train_lora_cli.py\" "
+    r"--base {base_model} --dataset \"{dataset_dir}\" --out \"{out_dir}\" --steps {steps} --rank {rank} --lr {lr}"
 )
 
 
