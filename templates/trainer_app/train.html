@@ -1,4 +1,5 @@
 <!-- templates/trainer_app/train.html -->
+{# templates/trainer_app/train.html #}
 {% extends 'base.html' %}
 {% load i18n widget_tweaks %}
 
@@ -11,112 +12,127 @@
     <h2 class="mb-0">{% trans "Addestramento nuovo modello LoRA" %}</h2>
   </div>
 
-  {# errori non-campo (es: "carica zip o immagini") #}
-  {% if form.non_field_errors %}
-    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-  {% endif %}
+  {# --- UTENTE NON AUTORIZZATO --- #}
+  {% if not access_granted %}
+    <div class="alert alert-danger text-center">
+      {% trans "Ti serve il ruolo “Addestratore” (o Admin) per accedere all’addestramento." %}
+    </div>
+    <div class="text-center">
+      <a href="{% url 'home' %}" class="btn btn-outline-primary">
+          {% trans "Torna al menu" %}
+      </a>
+    </div>
 
-  <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
-    {% csrf_token %}
+  {# --- UTENTE AUTORIZZATO --- #}
+  {% else %}
 
-    <div class="card shadow-sm mb-4">
-      <div class="card-body">
-        <div class="row g-3 align-items-end">
-          <div class="col-md-4">
-            <label class="form-label">{{ form.name.label }}</label>
-            {% render_field form.name class="form-control" placeholder="nome-modello" %}
-            {% if form.name.errors %}<div class="text-danger small">{{ form.name.errors|join:", " }}</div>{% endif %}
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">{% trans "Base model" %}</label>
-            {% render_field form.base_model class="form-select" %}
-            {% if form.base_model.errors %}<div class="text-danger small">{{ form.base_model.errors|join:", " }}</div>{% endif %}
-          </div>
-          <div class="col-md-2">
-            <label class="form-label">{{ form.steps.label }}</label>
-            {% render_field form.steps class="form-control" %}
-            {% if form.steps.errors %}<div class="text-danger small">{{ form.steps.errors|join:", " }}</div>{% endif %}
-          </div>
-          <div class="col-md-1">
-            <label class="form-label">{{ form.rank.label }}</label>
-            {% render_field form.rank class="form-control" %}
-            {% if form.rank.errors %}<div class="text-danger small">{{ form.rank.errors|join:", " }}</div>{% endif %}
-          </div>
-          <div class="col-md-1">
-            <label class="form-label">{{ form.lr.label }}</label>
-            {% render_field form.lr class="form-control" %}
-            {% if form.lr.errors %}<div class="text-danger small">{{ form.lr.errors|join:", " }}</div>{% endif %}
-          </div>
-        </div>
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+    {% endif %}
 
-        <hr class="my-4">
+    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+      {% csrf_token %}
 
-        <div class="row g-4">
-          <div class="col-lg-6">
-            <div class="border rounded-3 p-3 h-100">
-              <div class="mb-2 fw-semibold">{% trans "Opzione A: carica ZIP del dataset" %}</div>
-              {% render_field form.zip_dataset class="form-control" %}
-              {% if form.zip_dataset.errors %}<div class="text-danger small mt-1">{{ form.zip_dataset.errors|join:", " }}</div>{% endif %}
-              <small class="text-muted d-block mt-2">
-                {% trans "ZIP con immagini e (opzionale) captions.txt." %}
-              </small>
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+              <label class="form-label">{{ form.name.label }}</label>
+              {% render_field form.name class="form-control" placeholder="nome-modello" %}
+              {% if form.name.errors %}<div class="text-danger small">{{ form.name.errors|join:", " }}</div>{% endif %}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">{% trans "Base model" %}</label>
+              {% render_field form.base_model class="form-select" %}
+              {% if form.base_model.errors %}<div class="text-danger small">{{ form.base_model.errors|join:", " }}</div>{% endif %}
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">{{ form.steps.label }}</label>
+              {% render_field form.steps class="form-control" %}
+              {% if form.steps.errors %}<div class="text-danger small">{{ form.steps.errors|join:", " }}</div>{% endif %}
+            </div>
+            <div class="col-md-1">
+              <label class="form-label">{{ form.rank.label }}</label>
+              {% render_field form.rank class="form-control" %}
+              {% if form.rank.errors %}<div class="text-danger small">{{ form.rank.errors|join:", " }}</div>{% endif %}
+            </div>
+            <div class="col-md-1">
+              <label class="form-label">{{ form.lr.label }}</label>
+              {% render_field form.lr class="form-control" %}
+              {% if form.lr.errors %}<div class="text-danger small">{{ form.lr.errors|join:", " }}</div>{% endif %}
             </div>
           </div>
 
-          <div class="col-lg-6">
-            <div class="border rounded-3 p-3 h-100">
-              <div class="mb-2 fw-semibold">{% trans "Opzione B: immagini singole" %}</div>
-              <div class="mb-2">
-                <label class="form-label">{{ form.images.label|default:"Immagini" }}</label>
-                {% render_field form.images class="form-control" %}
-                {% if form.images.errors %}<div class="text-danger small mt-1">{{ form.images.errors|join:", " }}</div>{% endif %}
-                <small class="text-muted d-block">{% trans "Puoi selezionare più file." %}</small>
-              </div>
-              <div>
-                <label class="form-label">{{ form.captions.label|default:"Captions" }}</label>
-                {% render_field form.captions class="form-control" %}
-                {% if form.captions.errors %}<div class="text-danger small mt-1">{{ form.captions.errors|join:", " }}</div>{% endif %}
-                <small class="text-muted d-block">
-                  {% trans "Formato" %} <code>captions.txt</code>:
-                  {% trans "una riga per file" %} <code>filename.jpg|caption</code>.
+          <hr class="my-4">
+
+          <div class="row g-4">
+            <div class="col-lg-6">
+              <div class="border rounded-3 p-3 h-100">
+                <div class="mb-2 fw-semibold">{% trans "Opzione A: carica ZIP del dataset" %}</div>
+                {% render_field form.zip_dataset class="form-control" %}
+                {% if form.zip_dataset.errors %}<div class="text-danger small mt-1">{{ form.zip_dataset.errors|join:", " }}</div>{% endif %}
+                <small class="text-muted d-block mt-2">
+                  {% trans "ZIP con immagini e (opzionale) captions.txt." %}
                 </small>
               </div>
             </div>
+
+            <div class="col-lg-6">
+              <div class="border rounded-3 p-3 h-100">
+                <div class="mb-2 fw-semibold">{% trans "Opzione B: immagini singole" %}</div>
+                <div class="mb-2">
+                  <label class="form-label">{{ form.images.label|default:"Immagini" }}</label>
+                  {% render_field form.images class="form-control" %}
+                  {% if form.images.errors %}<div class="text-danger small mt-1">{{ form.images.errors|join:", " }}</div>{% endif %}
+                  <small class="text-muted d-block">{% trans "Puoi selezionare più file." %}</small>
+                </div>
+                <div>
+                  <label class="form-label">{{ form.captions.label|default:"Captions" }}</label>
+                  {% render_field form.captions class="form-control" %}
+                  {% if form.captions.errors %}<div class="text-danger small mt-1">{{ form.captions.errors|join:", " }}</div>{% endif %}
+                  <small class="text-muted d-block">
+                    {% trans "Formato" %} <code>captions.txt</code>:
+                    {% trans "una riga per file" %} <code>filename.jpg|caption</code>.
+                  </small>
+                </div>
+              </div>
+            </div>
           </div>
+
+        </div>
+        <div class="card-footer bg-transparent">
+          <button id="submitBtn" type="submit" class="btn btn-primary">
+            <span class="spinner-border spinner-border-sm me-2 d-none" id="spinner" role="status" aria-hidden="true"></span>
+            {% trans "Avvia addestramento" %}
+          </button>
+        </div>
+      </div>
+    </form>
+
+    {% if job_id %}
+    <div class="card shadow-sm">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <div>
+          <span class="fw-semibold">{% trans "Stato job" %}:</span>
+          <code id="jid">{{ job_id }}</code>
+        </div>
+        <small class="text-muted" id="statusLabel">running…</small>
+      </div>
+      <div class="card-body">
+        <div class="progress mb-3" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+          <div id="bar" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 1%">1%</div>
         </div>
 
-      </div>
-      <div class="card-footer bg-transparent">
-        <button id="submitBtn" type="submit" class="btn btn-primary">
-          <span class="spinner-border spinner-border-sm me-2 d-none" id="spinner" role="status" aria-hidden="true"></span>
-          {% trans "Avvia addestramento" %}
-        </button>
+        <pre class="logbox mb-0" id="log">In attesa di output…</pre>
+
+        <div class="alert alert-success mt-3 d-none" id="done">
+          {% trans "Modello" %} <b id="lname"></b> {% trans "pronto! Lo trovi nel menù del generatore." %}
+        </div>
       </div>
     </div>
-  </form>
+    {% endif %}
 
-  {% if job_id %}
-  <div class="card shadow-sm">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <div>
-        <span class="fw-semibold">{% trans "Stato job" %}:</span>
-        <code id="jid">{{ job_id }}</code>
-      </div>
-      <small class="text-muted" id="statusLabel">running…</small>
-    </div>
-    <div class="card-body">
-      <div class="progress mb-3" role="progressbar" aria-valuemin="0" aria-valuemax="100">
-        <div id="bar" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 1%">1%</div>
-      </div>
-
-      <pre class="logbox mb-0" id="log">In attesa di output…</pre>
-
-      <div class="alert alert-success mt-3 d-none" id="done">
-        {% trans "Modello" %} <b id="lname"></b> {% trans "pronto! Lo trovi nel menù del generatore." %}
-      </div>
-    </div>
-  </div>
-  {% endif %}
+  {% endif %} {# /access_granted #}
 
 </div>
 
@@ -133,7 +149,7 @@
   }
 </style>
 
-{% if job_id %}
+{% if access_granted and job_id %}
 <script>
   const submitBtn = document.getElementById('submitBtn');
   const spinner = document.getElementById('spinner');
@@ -148,9 +164,9 @@
   function autoscroll(el){ el.scrollTop = el.scrollHeight; }
   async function poll(){
     const url = "{% url 'trainer_app:status' job_id='00000000-0000-0000-0000-000000000000' %}"
-              .replace("00000000-0000-0000-0000-000000000000", job);
+                .replace("00000000-0000-0000-0000-000000000000", job);
     try{
-      const r = await fetch(url);
+      const r = await fetch(url, {credentials: "same-origin", cache: "no-store"});
       if(!r.ok){ setTimeout(poll, 2000); return; }
       const d = await r.json();
       const bar = document.getElementById("bar");

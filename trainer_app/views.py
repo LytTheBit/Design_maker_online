@@ -20,8 +20,13 @@ def is_trainer(u):
 
 
 @login_required
-@user_passes_test(is_trainer)
 def train_view(request):
+    if not is_trainer(request.user):
+        # niente form/job_id: solo il flag e 403
+        if not is_trainer(request.user):
+            return render(request, "trainer_app/train.html", {"access_granted": False}, status=403)
+
+    # accesso consentito
     if request.method == "POST":
         form = TrainingForm(request.POST, request.FILES)
         print("FILES:", request.FILES.keys())  # DEBUG
@@ -82,8 +87,11 @@ def train_view(request):
         form = TrainingForm()
 
     job_id = request.GET.get("job")
-    return render(request, "trainer_app/train.html", {"form": form, "job_id": job_id})
-
+    return render(
+        request,
+        "trainer_app/train.html",
+        {"form": form, "job_id": job_id, "access_granted": True}   # <-- QUI
+    )
 
 @login_required
 def training_status(request, job_id):
