@@ -15,12 +15,14 @@ import os
 import sys
 from pathlib import Path as _Path
 
+PYTHON_EXE = sys.executable
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_ROOT = Path(BASE_DIR) / "media"
 LORA_MODELS_DIR = MEDIA_ROOT / "lora"
 
+TRAIN_SCRIPT = BASE_DIR / "trainer_app" / "train_lora_cli.py"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -182,9 +184,9 @@ TRAIN_SCRIPT = os.environ.get(
 TRAIN_CWD = str(_Path(TRAIN_SCRIPT).parent)
 
 TRAIN_CMD = (
-    r"\"C:\venv_control_lora_py311\Scripts\python.exe\" "
-    r"\"C:\Users\Utente\OneDrive\Documenti\GitHub\progetto-tesi-control-lora-v3-main\tools\train_lora_cli.py\" "
-    r"--base {base_model} --dataset \"{dataset_dir}\" --out \"{out_dir}\" --steps {steps} --rank {rank} --lr {lr}"
+    f'"{PYTHON_EXE}" -u "{TRAIN_SCRIPT}" '
+    '--base "{base_model}" --dataset "{dataset_dir}" --out "{out_dir}" '
+    '--steps {steps} --rank {rank} --lr {lr}'
 )
 
 

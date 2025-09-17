@@ -12,7 +12,15 @@ from .models import TrainingJob
 
 log = logging.getLogger(__name__)
 
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.exceptions import PermissionDenied
+
+def is_trainer(u):
+    return u.is_authenticated and (u.is_superuser or u.groups.filter(name__in=["Addestratore","Admin"]).exists())
+
+
 @login_required
+@user_passes_test(is_trainer)
 def train_view(request):
     if request.method == "POST":
         form = TrainingForm(request.POST, request.FILES)

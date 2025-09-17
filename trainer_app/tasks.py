@@ -17,10 +17,13 @@ def _run_training_job(job_id: str):
     dataset_dir = Path(job.dataset_dir)  # NECESSARIO (prima era str)
     out_dir     = Path(job.out_dir)      # NECESSARIO (prima era str)
 
+    base_label = job.base_model  # es. "SD 1.5 (runwayml)"
+    base_repo = settings.LORA_BASE_MODELS.get(base_label, base_label)
+
     cmd = settings.TRAIN_CMD.format(
-        base_model=job.base_model,
-        dataset_dir=str(dataset_dir),
-        out_dir=str(out_dir),
+        base_model=base_repo,
+        dataset_dir=str(job.dataset_dir),
+        out_dir=str(job.out_dir),
         steps=job.steps,
         rank=job.rank,
         lr=job.lr,
@@ -79,14 +82,19 @@ def _run_training_job(job_id: str):
 
         rel_path = str(out_file.relative_to(Path(settings.MEDIA_ROOT)))
         LoraModel.objects.update_or_create(
-            name=safe_name, defaults={"file": rel_path, "is_active": True},
+            name=safe_name,
+            defaults={"file": rel_path, "is_active": True},
         )
 
-        job.lora_name = safe_name
+        update_fields = ["status", "progress", "log"]
+        if hasattr(job, "lora_file"):
+            job.lora_file = rel_path
+            update_fields.append("lora_file")
+
         job.status = "completed"
         job.progress = 100
         job.log += "\nTraining completato con successo.\n"
-        job.save(update_fields=["lora_name", "status", "progress", "log"])
+        job.save(update_fields=update_fields)
 
     except Exception as e:
         job.status = "failed"
