@@ -147,7 +147,8 @@
   const job = "{{ job_id }}";
   function autoscroll(el){ el.scrollTop = el.scrollHeight; }
   async function poll(){
-    const url = "{% url 'trainer_app:status' job_id='00000000-0000-0000-0000-000000000000' %}".replace("00000000-0000-0000-0000-000000000000", job);
+    const url = "{% url 'trainer_app:status' job_id='00000000-0000-0000-0000-000000000000' %}"
+              .replace("00000000-0000-0000-0000-000000000000", job);
     try{
       const r = await fetch(url);
       if(!r.ok){ setTimeout(poll, 2000); return; }

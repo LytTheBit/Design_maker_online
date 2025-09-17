@@ -66,7 +66,7 @@ def train_view(request):
             start_training_in_background(str(job.id))
 
             # redirect con query ?job=<id> (coerente con urls sotto)
-            return redirect(reverse("trainer_train") + f"?job={job_id}")
+            return redirect(reverse("trainer_app:train") + f"?job={job_id}")
 
         # Form non valido
         print("FORM ERRORS:", form.errors, form.non_field_errors())

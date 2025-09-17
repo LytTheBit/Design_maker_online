@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
 
-#app_name = "trainer_app" # Namespace for the app (opzionale ma consigliato)
+app_name = "trainer_app" # Namespace for the app
 
 urlpatterns = [
     path("train/", views.train_view, name="trainer_train"),

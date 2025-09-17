@@ -31,7 +31,7 @@ urlpatterns += i18n_patterns(
     path('menu/',      include('menu_app.urls')), # per testare il menu senza cambiare la homepage
     path('account/',   include('account_app.urls')), # login, logout, registrazione, profilo
     path('generator/', include('generator_app.urls')), # generatore di immagini (bicchieri)
-    path('trainer/',   include('trainer_app.urls')), # addestramento AI
+    path("trainer/", include(("trainer_app.urls", "trainer_app"), namespace="trainer_app")), # addestramento AI
 
     # homepage
     path('', include('menu_app.urls')),
