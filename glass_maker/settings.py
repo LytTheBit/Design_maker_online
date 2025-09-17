@@ -170,14 +170,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = "/media/" # URL per accedere ai media
 
 
-# Modelli di base selezionabili (nome visibile -> percorso locale o HF id)
-LORA_MODELS_DIR = Path(
-    os.environ.get(
-        "LORA_MODELS_DIR",
-        BASE_DIR.parent / "progetto-tesi-control-lora-v3-main" / "modelli"
-    )
-)
-# LORA_MODELS_DIR = Path(MEDIA_ROOT) / "lora" # (se vuoi tenerli dentro media/)
+# Modelli di base selezionabili (nome visibile -> HF id o path locale)
+LORA_BASE_MODELS = {
+    "SD 1.5 (runwayml)": "runwayml/stable-diffusion-v1-5",
+    "Realistic Vision 4.0": "SG161222/Realistic_Vision_V4.0_noVAE",
+    # "SDXL (facoltativo)": "stabilityai/stable-diffusion-xl-base-1.0",
+}
+
 
 # Comando CLI per lanciare il training (PLUGGABLE)
 TRAIN_PY = r"C:\venv_control_lora_py311\Scripts\python.exe"

@@ -3,6 +3,12 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms.widgets import ClearableFileInput
 
+from django.conf import settings
+
+BASE_MODELS = getattr(settings, "LORA_BASE_MODELS", {
+    "SD 1.5 (runwayml)": "runwayml/stable-diffusion-v1-5",
+    "Realistic Vision 4.0": "SG161222/Realistic_Vision_V4.0_noVAE",
+})
 
 # --- Widget che permette la selezione multipla ---
 class MultiFileInput(ClearableFileInput):
@@ -52,7 +58,7 @@ class MultiFileField(forms.FileField):
 class TrainingForm(forms.Form):
     name = forms.CharField(label="Nome del LoRA", max_length=128)
     base_model = forms.ChoiceField(
-        choices=[(k, k) for k in settings.LORA_BASE_MODELS.keys()]
+        choices=[(k, k) for k in BASE_MODELS.keys()]
     )
     steps = forms.IntegerField(min_value=50, max_value=20000, initial=800)
     rank = forms.IntegerField(min_value=4, max_value=128, initial=16)
