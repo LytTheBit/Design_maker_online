@@ -12,7 +12,8 @@ def is_admin(user):
 @user_passes_test(is_admin)
 @staff_member_required
 def account_management(request):
-    addestratore_group = Group.objects.get(name="Addestratore")
+    # addestratore_group = Group.objects.get_or_create(name="Addestratore")
+    addestratore_group, created = Group.objects.get_or_create(name="Addestratore")
 
     if request.method == "POST":
         user_id = request.POST.get('user_id')
