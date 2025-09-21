@@ -1,0 +1,8 @@
+Django>=4.2,<5.0
+gunicorn>=21.2
+Pillow>=10.0
+requests>=2.31
+django-widget-tweaks>=1.4.12
+opencv-python-headless>=4.10
+numpy>=1.26
+pymysql

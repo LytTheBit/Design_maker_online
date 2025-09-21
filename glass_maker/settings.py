@@ -95,12 +95,17 @@ LOGOUT_REDIRECT_URL = 'home'     # opzionale: dove andare dopo il logout
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": "django.db.backends.mysql",
         "NAME": "designmaker",
         "USER": "design",
         "PASSWORD": "secret",
-        "HOST": "localhost",
-        "PORT": "5432",
+        "HOST": "db",
+        "PORT": "3306",
+        "OPTIONS": {
+            "charset": "utf8mb4",
+            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
+        "CONN_MAX_AGE": 60,
     }
 }
 
@@ -188,13 +193,5 @@ TRAIN_CMD = (
     '--base "{base_model}" --dataset "{dataset_dir}" --out "{out_dir}" '
     '--steps {steps} --rank {rank} --lr {lr}'
 )
-
-
-# Celery settings
-CELERY_BROKER_URL = "redis://localhost:6379/0"
-CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
-
-CELERY_TASK_ALWAYS_EAGER = False
-CELERY_TASK_EAGER_PROPAGATES = False
 
 
