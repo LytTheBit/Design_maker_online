@@ -87,6 +87,7 @@ def train_lora(request):
         })
 
 # Codice per la generazione di immagini tramite un server IA esterno
+#LAMBDA_SERVER_URL = "http://127.0.0.1:8010/generate"
 LAMBDA_SERVER_URL = "http://server-generatore:8010/generate"
 
 def generate_image(request):
@@ -139,12 +140,21 @@ def generate_image(request):
         )
         gen.canny_image.save(f"canny_{gen.id}.png", ContentFile(canny_bytes), save=True)
 
+        # +++ NUOVO CODICE +++
+        # 1. Apri e leggi i byte del file LoRA
+        with lora_obj.file.open('rb') as f:
+            lora_bytes = f.read()
+
+        # 2. Codifica i byte in Base64 e trasformali in una stringa UTF-8
+        lora_data_b64 = base64.b64encode(lora_bytes).decode('utf-8')
+
         # --- Prepara payload per il server IA ---
         payload = {
             "canny": img_data_url,
             "prompt": prompt,
             "model": lora_obj.name,           # nome "umano" (facoltativo)
             "model_file": lora_obj.file.name, # <-- path relativo es. "lora/xxx.safetensors"
+            "model_file_b64": lora_data_b64,
             "num_inference_steps": num_steps,
             "guidance_scale": guidance,
             "extra_condition_scale": cond,
